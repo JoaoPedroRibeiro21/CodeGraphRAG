@@ -1,33 +1,18 @@
-# Ambientes virtuais
-venv/
+# Ambiente virtual
 .venv/
 
-# Cache e arquivos compilados do Python
+# Banco de dados local / cache
+arquivos/chat_retrieval_db/
+
+# Arquivos grandes de bibliotecas LFS (se necessário)
+*.pt
+*.ckpt
+*.csv
+*.zip
+*.tar
+*.h5
+
+# Pycache e derivados
 __pycache__/
-*.py[cod]
-*$py.class
-
-# Arquivos de log
-*.log
-
-# Arquivos de configurações e variáveis de ambiente
-.env
-.env.*
-
-# Arquivos do sistema
-.DS_Store
-Thumbs.db
-
-# Diretórios de build (úteis para pacotes Python)
-build/
-dist/
-*.egg-info/
-
-# Configurações do VS Code ou outros editores
-.vscode/
-.idea/
-
-# Banco de dados local ou arquivos temporários
-*.sqlite3
-*.db
-*.tmp
+*.pyc
+*.pyo
