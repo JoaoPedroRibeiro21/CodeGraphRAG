@@ -16,3 +16,7 @@ arquivos/chat_retrieval_db/
 __pycache__/
 *.pyc
 *.pyo
+
+VRChat_Debug.py
+VRCHAT_IntegraAPI.py
+diagnostico.py
