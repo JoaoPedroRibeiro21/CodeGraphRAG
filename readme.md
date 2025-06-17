@@ -1,160 +1,93 @@
-# Chat com Documentos - Sistema RAG
+# 🧠 Assistente RAG com PDFs e Flask
 
-## Estrutura do Projeto
+Este projeto é uma API baseada em Flask com LangChain, ChromaDB e vetorização usando o modelo `nomic-embed-text` via Ollama.
+
+Ele carrega arquivos PDF de uma base de conhecimento, cria um banco vetorial e permite responder perguntas via API com base nesses documentos.
+
+---
+
+## 📁 Estrutura
 
 ```
-projeto/
-├── app.py                          # Aplicação Flask principal
-├── templates/
-│   └── index.html                  # Interface front-end
+.
+├── preCarregaDataBase.py        # Script para gerar o banco vetorial (RAG)
+├── otimizado_app.py             # API Flask principal
+├── loader.py                    # Carregamento e limpeza de PDFs
+├── vector_db.py                 # Chunking e banco vetorial (Chroma)
+├── requirements.txt             # Dependências
 ├── files/
-│   └── Apresentacao2025.pdf        # Documento PDF para consulta
-├── arquivos/
-│   └── chat_retrieval_db/          # Banco de dados vetorial (criado automaticamente)
-├── requirements.txt                # Dependências Python
-└── README.md                       # Este arquivo
+│   └── BaseDeConhecimento_PDF/ # PDFs da base de conhecimento
+└── arquivos/chat_retrieval_db/ # Banco vetorial persistido (gerado)
 ```
 
-## Instalação e Configuração
+---
 
-### 1. Instalar Dependências
+## ✅ Pré-requisitos
 
+- Python 3.10+
+- [Ollama instalado](https://ollama.com/)
+- Docker (opcional, para deploy)
+- API Key da OpenAI (para validação ou fallback, se quiser usar OpenAIEmbeddings)
+
+---
+
+## ⚙️ Setup Local
+
+### 1. Instale as dependências
 ```bash
-pip install flask flask-cors langchain langchain-openai langchain-community chromadb pypdf python-dotenv
+pip install -r requirements.txt
 ```
 
-### 2. Configurar Variáveis de Ambiente
+### 2. Adicione seus PDFs
+Coloque seus arquivos PDF dentro de:
+```
+files/BaseDeConhecimento_PDF/
+```
 
-Crie um arquivo `.env` na raiz do projeto:
+### 3. Rode o pré-processador
+```bash
+python preCarregaDataBase.py
+```
+Esse comando:
+- Lê os PDFs
+- Faz chunking
+- Cria o banco vetorial com ChromaDB
 
+### 4. Inicie a API Flask
+```bash
+python otimizado_app.py
+```
+
+Acesse:
+- `http://localhost:5000/status` → status da API
+- `http://localhost:5000/perguntar` (POST) → envia perguntas
+
+---
+
+## 📡 Exemplo de uso via `curl`
+```bash
+curl -X POST http://localhost:5000/perguntar \
+     -H "Content-Type: application/json" \
+     -d '{"pergunta": "Qual é o processo de faturamento?"}'
+```
+
+---
+
+## 🐳 Docker
+
+### Build e run:
+```bash
+docker build -t flask-rag .
+docker run -p 5000:5000 flask-rag
+```
+
+### Deploy no Azure (opcional)
+Use o Azure App Service para subir como container ou como app Python puro.
+
+---
+
+## 📂 Variáveis de Ambiente
+Crie um arquivo `.env` com:
 ```env
-OPENAI_API_KEY=sua_chave_openai_aqui
+OPENAI_API_KEY=your_key_here  # se desejar usar modelos OpenAI alternativos
 ```
-
-### 3. Estrutura de Diretórios
-
-Certifique-se de criar os diretórios necessários:
-
-```bash
-mkdir templates files arquivos
-```
-
-### 4. Adicionar o Documento
-
-Coloque seu arquivo PDF em `files/Apresentacao2025.pdf`
-
-## Como Executar
-
-1. Execute a aplicação Flask:
-```bash
-python app.py
-```
-
-2. Acesse no navegador:
-```
-http://localhost:5000
-```
-
-## Funcionalidades
-
-### API Endpoints
-
-- **GET /** - Interface web principal
-- **POST /perguntar** - Endpoint para fazer perguntas ao documento
-- **GET /status** - Verifica o status do sistema
-- **GET /health** - Health check da aplicação
-
-### Interface Web
-
-- Chat interativo com o documento
-- Indicador de status do sistema
-- Interface responsiva para desktop e mobile
-- Animações suaves e feedback visual
-- Tratamento de erros
-
-## Exemplo de Uso da API
-
-### Fazer uma Pergunta
-
-```javascript
-const response = await fetch('/perguntar', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-        pergunta: "Qual é o tema principal do documento?"
-    })
-});
-
-const data = await response.json();
-console.log(data.resposta);
-```
-
-### Verificar Status
-
-```javascript
-const response = await fetch('/status');
-const data = await response.json();
-console.log(data);
-// { "status": "ativo", "sistema_inicializado": true }
-```
-
-## Melhorias Implementadas
-
-### No Backend (app.py):
-
-1. **Tratamento de Erros**: Sistema robusto de tratamento de exceções
-2. **Validação de Entrada**: Verificação de dados JSON e parâmetros
-3. **Inicialização Segura**: Verifica se arquivos existem antes de processar
-4. **Endpoints Adicionais**: Status e health check
-5. **CORS Configurado**: Permite requisições do front-end
-6. **Logging**: Mensagens informativas sobre o estado do sistema
-
-### No Frontend:
-
-1. **Interface Moderna**: Design responsivo com gradientes e animações
-2. **Chat Interativo**: Experiência similar a aplicações de chat modernas
-3. **Indicadores Visuais**: Status do sistema, loading, erros
-4. **Responsividade**: Funciona bem em desktop e mobile
-5. **Tratamento de Erros**: Mensagens claras para o usuário
-6. **Auto-resize**: Campo de entrada se adapta ao conteúdo
-7. **Atalhos de Teclado**: Enter para enviar, Shift+Enter para nova linha
-
-## Troubleshooting
-
-### Problemas Comuns:
-
-1. **Arquivo PDF não encontrado**: Verifique se o arquivo está em `files/Apresentacao2025.pdf`
-2. **Erro de API Key**: Configure a variável de ambiente `OPENAI_API_KEY`
-3. **Dependências**: Execute `pip install -r requirements.txt`
-4. **Porta ocupada**: Mude a porta no `app.run(port=XXXX)`
-
-### Logs Úteis:
-
-O sistema exibe mensagens no console sobre:
-- Status de inicialização
-- Carregamento de documentos
-- Erros de processamento
-- Status das requisições
-
-## Personalização
-
-### Modificar o Prompt:
-
-Edite a variável `prompt_template` no arquivo `app.py` para personalizar as respostas.
-
-### Adicionar Mais Documentos:
-
-Modifique a lista `caminhos` no arquivo `app.py` para incluir mais PDFs.
-
-### Customizar Interface:
-
-Edite o CSS no arquivo `templates/index.html` para modificar a aparência.
-
-## Segurança
-
-- Configure CORS adequadamente para produção
-- Use HTTPS em produção
-- Mantenha a API Key segura
-- Considere autenticação para acesso à API

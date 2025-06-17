@@ -4,15 +4,13 @@
 # Banco de dados local / cache
 arquivos/chat_retrieval_db/
 
-# Arquivos grandes de bibliotecas LFS (se necessário)
+
 *.pt
 *.ckpt
 *.csv
 *.zip
 *.tar
 *.h5
-
-# Pycache e derivados
 __pycache__/
 *.pyc
 *.pyo
