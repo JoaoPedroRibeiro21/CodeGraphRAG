@@ -18,3 +18,4 @@ __pycache__/
 VRChat_Debug.py
 VRCHAT_IntegraAPI.py
 diagnostico.py
+.env
