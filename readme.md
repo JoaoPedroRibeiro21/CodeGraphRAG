@@ -11,7 +11,7 @@ Ele carrega arquivos PDF de uma base de conhecimento, cria um banco vetorial e p
 ```
 .
 ├── preCarregaDataBase.py        # Script para gerar o banco vetorial (RAG)
-├── otimizado_app.py             # API Flask principal
+├── app.py             # API Flask principal
 ├── loader.py                    # Carregamento e limpeza de PDFs
 ├── vector_db.py                 # Chunking e banco vetorial (Chroma)
 ├── requirements.txt             # Dependências
@@ -55,7 +55,7 @@ Esse comando:
 
 ### 4. Inicie a API Flask
 ```bash
-python otimizado_app.py
+python app.py
 ```
 
 Acesse:
