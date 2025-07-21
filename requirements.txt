@@ -24,6 +24,8 @@ ipykernel
 faiss-cpu
 lark
 google-auth
+PyJWT==2.8.0
+
 
 # Streamlit e Flask
 streamlit

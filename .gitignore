@@ -1,6 +1,6 @@
 # Ambiente virtual
 .venv/
-
+venv
 # Banco de dados local / cache
 arquivos/chat_retrieval_db/
 

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -5,24 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VRChat</title>
 
-    <!-- CSS local -->
     <link rel="stylesheet" href="/files/style.css" />
-
-    <!-- Google Sign-In -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
-
-    <!-- JS local -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script src="/files/script.js" defer></script>
 </head>
 <body>
-    <!-- Tela de Login -->
     <div id="login-container">
         <div class="login-card">
             <div class="logo">🤖</div>
             <h1>VRChat</h1>
             <p>Faça login para acessar o chat com documentos</p>
-            
             <div id="g_id_onload"
                  data-client_id="<YOUR_GOOGLE_CLIENT_ID>"
                  data-callback="handleCredentialResponse"
@@ -32,7 +27,6 @@
         </div>
     </div>
 
-    <!-- Tela do Chat -->
     <div id="chat-container" style="display: none;">
         <div class="container">
             <div class="header">
@@ -40,7 +34,6 @@
                     <div class="status-indicator" id="statusIndicator"></div>
                     <button onclick="logout()" class="logout-button">Logout</button>
                 </div>
-
                 <h1>Chat com Documentos VRSoftware</h1>
                 <p>Faça perguntas sobre o conteúdo da VRWiki ou Banco de Conhecimento</p>
                 <br>
@@ -48,7 +41,6 @@
                 <br>
                 <a href="https://drive.google.com/drive/folders/1JSqtLkPs-zcNUQFdyOHi4eyKBbTOPSO3?usp=sharing">Base de Conhecimento</a>
             </div>
-            
             <div class="chat-container" id="chatContainer">
                 <div class="empty-state">
                     <div class="empty-state-icon">💬</div>
@@ -56,21 +48,10 @@
                     <p>Faça uma pergunta sobre o documento para começar a conversa.</p>
                 </div>
             </div>
-            
             <div class="input-container">
                 <div class="input-group">
-                    <textarea 
-                        id="messageInput" 
-                        class="input-field" 
-                        placeholder="Digite sua pergunta aqui..."
-                        rows="1"
-                    ></textarea>
-                    <button id="sendButton" class="send-button">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="22" y1="2" x2="11" y2="13"></line>
-                            <polygon points="22,2 15,22 11,13 2,9"></polygon>
-                        </svg>
-                    </button>
+                    <textarea id="messageInput" class="input-field" placeholder="Digite sua pergunta aqui..." rows="1"></textarea>
+                    <button id="sendButton" class="send-button">Enviar</button>
                 </div>
             </div>
         </div>
