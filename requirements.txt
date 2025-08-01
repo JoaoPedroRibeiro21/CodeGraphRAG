@@ -26,11 +26,8 @@ lark
 google-auth
 PyJWT==2.8.0
 redis>=5.0.1
-
-
-
-# Streamlit e Flask
 streamlit
 flask==2.3.3
 flask-cors==4.0.0
 eventlet
+gunicorn
