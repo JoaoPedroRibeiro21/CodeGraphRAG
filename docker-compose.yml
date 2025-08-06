@@ -1,0 +1,32 @@
+services:
+  vrchat:
+    build: .
+    container_name: vrchat_app
+    expose:
+      - "8000"
+    volumes:
+      - ./files:/app/files
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    restart: always
+
+  nginx:
+    image: nginx:stable
+    container_name: vrchat_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./files:/app/files:ro
+    depends_on:
+      - vrchat
+    restart: always
+
+  redis:
+    image: redis:7
+    container_name: vrchat_redis
+    ports:
+      - "6379:6379"
+    restart: always
