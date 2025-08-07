@@ -1,32 +1,47 @@
+version: "3.8"
+
 services:
-  vrchat:
-    build: .
-    container_name: vrchat_app
-    expose:
-      - "8000"
-    volumes:
-      - ./files:/app/files
-    env_file:
-      - .env
-    depends_on:
-      - redis
-    restart: always
-
-  nginx:
-    image: nginx:stable
-    container_name: vrchat_nginx
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./files:/app/files:ro
-    depends_on:
-      - vrchat
-    restart: always
-
   redis:
-    image: redis:7
-    container_name: vrchat_redis
+    image: redis:latest
+    container_name: redis
     ports:
       - "6379:6379"
-    restart: always
+    volumes:
+      - redis_data:/data
+
+  vrchat:
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: vrchat
+    expose:
+      - "8000"
+    depends_on:
+      - redis
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf:/etc/letsencrypt
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - vrchat
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf:/etc/letsencrypt
+    entrypoint: >
+      sh -c "certbot certonly --webroot --webroot-path=/var/www/certbot 
+      --email joao.ribeiro@vrsoft.com.br --agree-tos --no-eff-email 
+      -d vrchat.vrsoft.com.br"
+
+volumes:
+  redis_data:
