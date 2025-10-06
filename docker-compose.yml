@@ -18,30 +18,31 @@ services:
       - "8000"
     depends_on:
       - redis
+    # Adiciona esta seção para passar as variáveis do .env
+    env_file:
+      - .env
 
   nginx:
     image: nginx:latest
     container_name: nginx
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./certbot/www:/var/www/certbot
-      - ./certbot/conf:/etc/letsencrypt
+      - ./files:/usr/share/nginx/html/files
     ports:
       - "80:80"
-      - "443:443"
     depends_on:
       - vrchat
 
-  certbot:
-    image: certbot/certbot
-    container_name: certbot
-    volumes:
-      - ./certbot/www:/var/www/certbot
-      - ./certbot/conf:/etc/letsencrypt
-    entrypoint: >
-      sh -c "certbot certonly --webroot --webroot-path=/var/www/certbot 
-      --email joao.ribeiro@vrsoft.com.br --agree-tos --no-eff-email 
-      -d vrchat.vrsoft.com.br"
+  # certbot:
+  #   image: certbot/certbot
+  #   container_name: certbot
+  #   volumes:
+  #     - ./certbot/www:/var/www/certbot
+  #     - ./certbot/conf:/etc/letsencrypt
+  #   entrypoint: >
+  #     sh -c "certbot certonly --webroot --webroot-path=/var/www/certbot 
+  #     --email seu-email@exemplo.com --agree-tos --no-eff-email 
+  #     -d seu-dominio.com"
 
 volumes:
   redis_data:

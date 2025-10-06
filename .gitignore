@@ -1,9 +1,14 @@
 # Ambiente virtual
 .venv/
 venv
-# Banco de dados local / cache
+
 arquivos/chat_retrieval_db/
 
+chroma_graph_db
+
+.env
+
+code_graph.gpickle
 
 *.pt
 *.ckpt
@@ -15,7 +20,4 @@ __pycache__/
 *.pyc
 *.pyo
 
-VRChat_Debug.py
-VRCHAT_IntegraAPI.py
-diagnostico.py
-.env
+

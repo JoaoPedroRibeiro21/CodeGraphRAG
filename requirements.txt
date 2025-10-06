@@ -1,33 +1,34 @@
-# Versões principais de LangChain e ecossistema
+# --- Core LangChain & OpenAI ---
 langchain==0.1.16
-langchain-community==0.0.33
+langchain-openai
+langchain-core
+langchain-text-splitters
+
+# --- LlamaIndex (apenas para o carregador de arquivos) ---
+llama-index-core>=0.10.0
+
+# --- Vector Store ---
 langchain-chroma==0.1.4
 chromadb==0.5.3
-pydantic>=2.9
-fastapi==0.100.0  # compatível com langchain-chroma
-langchain_anthropic
-langchain_openai
-sentence-transformers
- 
 
-# PDF, áudio, vídeo, scraping
-pypdf==4.2.0
-yt_dlp==2024.4.9
-pydub==0.25.1
-beautifulsoup4==4.12.3
-
-# Utilitários
-tiktoken==0.6.0
-jinja2==3.1.3
-python-dotenv==1.0.0
-ipykernel
-faiss-cpu
-lark
-google-auth
-PyJWT==2.8.0
-redis>=5.0.1
-streamlit
+# --- Web Framework & Server ---
 flask==2.3.3
 flask-cors==4.0.0
-eventlet
 gunicorn
+eventlet
+gevent>=24.0.0
+google-auth
+
+# --- Code Parsing & Graph (COM VERSÃO FIXADA) ---
+tree-sitter==0.20.4
+networkx
+lark
+
+# --- Data Loading ---
+pypdf==4.2.0
+
+# --- Utilities ---
+python-dotenv==1.0.0
+redis>=5.0.1
+tiktoken==0.6.0
+tqdm
