@@ -1,0 +1,45 @@
+/* Override Chainlit's default Material-UI theme variables and classes to force the VR Software tracking orange */
+
+:root {
+  /* Shadcn / Chainlit 2.0+ primary color (Orange #FF6B00) */
+  --primary: 25.2 100% 50% !important;
+  --primary-foreground: 0 0% 100% !important;
+  --ring: 25.2 100% 50% !important;
+
+  /* Legacy Material-UI variables just in case */
+  --primary-main: #FF6B00 !important;
+  --primary-light: #FF8533 !important;
+  --primary-dark: #CC5500 !important;
+  --cl-primary-main: #FF6B00 !important;
+}
+
+/* Force buttons, links, and icons to be orange */
+.MuiButton-root, 
+.MuiFab-root, 
+.MuiIconButton-root.MuiIconButton-colorPrimary,
+.MuiButtonBase-root.MuiButton-containedPrimary {
+  background-color: #FF6B00 !important;
+  color: white !important;
+}
+
+.MuiButton-root:hover, 
+.MuiFab-root:hover,
+.MuiButtonBase-root.MuiButton-containedPrimary:hover {
+  background-color: #CC5500 !important;
+}
+
+.MuiTypography-colorPrimary,
+.MuiLink-root,
+.MuiSvgIcon-colorPrimary {
+  color: #FF6B00 !important;
+}
+
+/* Force borders and outlines */
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #FF6B00 !important;
+}
+
+/* Chainlit specific overrides */
+.step-icon, .message-icon {
+  color: #FF6B00 !important;
+}

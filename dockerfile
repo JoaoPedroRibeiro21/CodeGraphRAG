@@ -1,4 +1,4 @@
-# dockerfile (Versão Final e Estável)
+# dockerfile (Chainlit — VRChat)
 
 FROM python:3.12-slim
 
@@ -14,7 +14,7 @@ WORKDIR /app
 
 COPY ./requirements.txt /app/requirements.txt
 
-# Instala as dependências Python com a versão fixada do tree-sitter
+# Instala as dependências Python
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
@@ -22,14 +22,21 @@ RUN pip install --upgrade pip && \
 COPY . /app
 
 # --- ETAPA DE PRÉ-PROCESSAMENTO COMPLETA ---
-# Clona a gramática Java (necessária para o build_graph.py)
-RUN git clone https://github.com/tree-sitter/tree-sitter-java.git
+# A chave OpenAI é necessária durante o build para gerar embeddings
+ARG OPENAI_API_KEY
+ENV OPENAI_API_KEY=${OPENAI_API_KEY}
 
-# Executa todos os scripts de indexação em ordem
-RUN python3 preCarregaDataBase.py
-RUN python3 build_graph.py
-RUN python3 preCarregaGrafo.py
+# Clona a gramática Java (necessária para o build_graph.py)
+# Remove se já existir (pode vir do COPY .)
+RUN rm -rf tree-sitter-java && git clone https://github.com/tree-sitter/tree-sitter-java.git
+
+# A indexação (preCarregaDataBase, build_graph, preCarregaGrafo)
+# Agora será feita separadamente fora do processo de build do contêiner web.
+
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
 EXPOSE 8000
 
-CMD ["gunicorn", "-k", "gevent", "-w", "1", "-b", "0.0.0.0:8000", "app:app"]
+# Executa o script de entrada
+ENTRYPOINT ["/app/entrypoint.sh"]

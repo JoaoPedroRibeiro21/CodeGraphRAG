@@ -1,0 +1,107 @@
+[project]
+# List of environment variables to be provided by each user to use the app.
+user_env = []
+name = "VRChat"
+
+# Duration (in seconds) during which the session is saved when the connection is lost
+session_timeout = 3600
+
+# Duration (in seconds) of the user session expiry
+user_session_timeout = 1296000  # 15 days
+
+# Enable third parties caching (e.g., LangChain cache)
+cache = false
+
+# Whether to persist user environment variables (API keys) to the database
+persist_user_env = false
+
+# Whether to mask user environment variables (API keys) in the UI with password type
+mask_user_env = false
+
+# Authorized origins
+allow_origins = ["*"]
+
+[features]
+# Process and display HTML in messages.
+unsafe_allow_html = false
+
+# Process and display mathematical expressions.
+latex = false
+
+# Autoscroll new user messages at the top of the window
+user_message_autoscroll = true
+
+# Autoscroll new assistant messages
+assistant_message_autoscroll = true
+
+# Automatically tag threads with the current chat profile
+auto_tag_thread = true
+
+# Allow users to edit their own messages
+edit_message = true
+
+# Allow users to share threads
+allow_thread_sharing = false
+
+# Enable favorite messages
+favorites = false
+
+# Authorize users to spontaneously upload files with messages
+[features.spontaneous_file_upload]
+    enabled = true
+    accept = ["image/jpeg", "image/png", "image/gif", "image/webp", "application/pdf"]
+    max_files = 5
+    max_size_mb = 20
+
+[features.audio]
+    enabled = false
+    sample_rate = 24000
+
+[features.mcp]
+    enabled = false
+
+[UI]
+# Name of the assistant.
+name = "VRChat"
+
+# Custom CSS
+custom_css = "/public/custom.css"
+
+# Login page background image (relative to public folder)
+login_page_image = "/public/login_bg.png"
+
+# Dark theme by default
+default_theme = "dark"
+
+# Wide layout for better readability
+layout = "wide"
+
+# Chain of Thought display mode
+cot = "hidden"
+
+# Whether to prompt user confirmation on clicking 'New Chat'
+confirm_new_chat = false
+
+# Description for HTML meta tags
+description = "Assistente inteligente especialista no sistema ERP VRMaster"
+
+# Alert style
+alert_style = "classic"
+
+[meta]
+generated_by = "2.9.6"
+
+public = false
+
+[UI.theme]
+    default = "dark"
+    [UI.theme.light]
+        [UI.theme.light.primary]
+            main = "#FF6B00"
+            light = "#FF8533"
+            dark = "#CC5500"
+    [UI.theme.dark]
+        [UI.theme.dark.primary]
+            main = "#FF6B00"
+            light = "#FF8533"
+            dark = "#CC5500"

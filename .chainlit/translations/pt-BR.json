@@ -1,0 +1,255 @@
+{
+    "common": {
+        "actions": {
+            "cancel": "Cancelar",
+            "confirm": "Confirmar",
+            "continue": "Continuar",
+            "goBack": "Voltar",
+            "reset": "Redefinir",
+            "submit": "Enviar"
+        },
+        "status": {
+            "loading": "Carregando...",
+            "error": {
+                "default": "Ocorreu um erro",
+                "serverConnection": "Não foi possível conectar ao servidor"
+            }
+        }
+    },
+    "auth": {
+        "login": {
+            "title": "Faça login para acessar o sistema",
+            "form": {
+                "email": {
+                    "label": "Endereço de e-mail",
+                    "required": "o e-mail é obrigatório",
+                    "placeholder": "eu@exemplo.com"
+                },
+                "password": {
+                    "label": "Senha",
+                    "required": "a senha é obrigatória"
+                },
+                "actions": {
+                    "signin": "Entrar"
+                },
+                "alternativeText": {
+                    "or": "OU"
+                }
+            },
+            "errors": {
+                "default": "Não foi possível fazer login",
+                "signin": "Tente fazer login com uma conta diferente",
+                "oauthSignin": "Tente fazer login com uma conta diferente",
+                "redirectUriMismatch": "O URI de redirecionamento não corresponde à configuração",
+                "oauthCallback": "Tente fazer login com uma conta diferente",
+                "oauthCreateAccount": "Tente fazer login com uma conta diferente",
+                "emailCreateAccount": "Tente fazer login com uma conta diferente",
+                "callback": "Tente fazer login com a conta correta",
+                "oauthAccountNotLinked": "Para confirmar sua identidade, faça login com a conta usada originalmente",
+                "emailSignin": "O e-mail não pôde ser enviado",
+                "emailVerify": "Por favor verifique seu e-mail, enviamos uma nova mensagem",
+                "credentialsSignin": "Falha no login. Verifique as informações fornecidas",
+                "sessionRequired": "Por favor, faça login para acessar esta página"
+            }
+        },
+        "provider": {
+            "continue": "Continuar com {{provider}}"
+        }
+    },
+    "chat": {
+        "input": {
+            "placeholder": "Digite sua mensagem aqui...",
+            "actions": {
+                "send": "Enviar mensagem",
+                "stop": "Parar Tarefa",
+                "attachFiles": "Anexar arquivos"
+            }
+        },
+        "favorites": {
+            "use": "Usar mensagem favorita",
+            "headline": "Mensagens Favoritas"
+        },
+        "commands": {
+            "button": "Ferramentas",
+            "changeTool": "Mudar Ferramenta",
+            "availableTools": "Ferramentas Disponíveis"
+        },
+        "speech": {
+            "start": "Iniciar gravação",
+            "stop": "Parar gravação",
+            "connecting": "Conectando"
+        },
+        "fileUpload": {
+            "dragDrop": "Arraste e solte arquivos aqui",
+            "browse": "Procurar Arquivos",
+            "sizeLimit": "Limite de tamanho:",
+            "errors": {
+                "failed": "Falha no envio",
+                "cancelled": "Envio cancelado para"
+            },
+            "actions": {
+                "cancelUpload": "Cancelar envio",
+                "removeAttachment": "Remover anexo"
+            }
+        },
+        "messages": {
+            "status": {
+                "using": "Usando",
+                "used": "Usado"
+            },
+            "actions": {
+                "copy": {
+                    "button": "Copiar para a área de transferência",
+                    "success": "Copiado!"
+                }
+            },
+            "feedback": {
+                "positive": "Ajudou",
+                "negative": "Não ajudou",
+                "edit": "Editar feedback",
+                "dialog": {
+                    "title": "Adicione um comentário",
+                    "submit": "Enviar feedback",
+                    "yourFeedback": "Seu feedback..."
+                },
+                "status": {
+                    "updating": "Atualizando",
+                    "updated": "Feedback atualizado"
+                }
+            }
+        },
+        "history": {
+            "title": "Últimas Entradas",
+            "empty": "Tão vazio...",
+            "show": "Mostrar histórico"
+        },
+        "settings": {
+            "title": "Painel de Configurações",
+            "customize": "Personalize as configurações do seu chat"
+        },
+        "watermark": "O VRChat pode cometer erros. Verifique as informações importantes."
+    },
+    "threadHistory": {
+        "sidebar": {
+            "title": "Chats Anteriores",
+            "filters": {
+                "search": "Pesquisar",
+                "placeholder": "Pesquisar conversas..."
+            },
+            "timeframes": {
+                "today": "Hoje",
+                "yesterday": "Ontem",
+                "previous7days": "Últimos 7 dias",
+                "previous30days": "Últimos 30 dias"
+            },
+            "empty": "Nenhuma conversa encontrada",
+            "actions": {
+                "close": "Fechar barra lateral",
+                "open": "Abrir barra lateral"
+            }
+        },
+        "thread": {
+            "untitled": "Conversa Sem Título",
+            "menu": {
+                "rename": "Renomear",
+                "share": "Compartilhar",
+                "delete": "Apagar"
+            },
+            "actions": {
+                "share": {
+                    "title": "Compartilhar link do chat",
+                    "button": "Compartilhar",
+                    "status": {
+                        "copied": "Link copiado",
+                        "created": "Link de compartilhamento!",
+                        "unshared": "Compartilhamento desativado"
+                    },
+                    "error": {
+                        "create": "Falha ao criar link",
+                        "unshare": "Falha ao remover compartilhamento"
+                    }
+                },
+                "delete": {
+                    "title": "Confirmar exclusão",
+                    "description": "Isso apagará a conversa, suas mensagens e anexos. Esta ação não pode ser desfeita.",
+                    "success": "Chat apagado",
+                    "inProgress": "Apagando chat"
+                },
+                "rename": {
+                    "title": "Renomear Chat",
+                    "description": "Digite um novo nome para este chat",
+                    "form": {
+                        "name": {
+                            "label": "Nome",
+                            "placeholder": "Novo nome"
+                        }
+                    },
+                    "success": "Chat renomeado!",
+                    "inProgress": "Renomeando chat"
+                }
+            }
+        }
+    },
+    "navigation": {
+        "header": {
+            "chat": "Chat",
+            "readme": "Sobre",
+            "theme": {
+                "light": "Tema Claro",
+                "dark": "Tema Escuro",
+                "system": "Seguir o Sistema"
+            }
+        },
+        "newChat": {
+            "button": "Novo Chat",
+            "dialog": {
+                "title": "Criar Novo Chat",
+                "description": "Isso limpará seu histórico de mensagens atual. Deseja continuar?",
+                "tooltip": "Novo Chat"
+            }
+        },
+        "user": {
+            "menu": {
+                "settings": "Configurações",
+                "settingsKey": "S",
+                "apiKeys": "Chaves da API",
+                "logout": "Sair"
+            }
+        }
+    },
+    "apiKeys": {
+        "title": "Chaves de API Necessárias",
+        "description": "Para usar este app, chaves de API são necessárias.",
+        "success": {
+            "saved": "Salvo com sucesso"
+        }
+    },
+    "alerts": {
+        "info": "Informação",
+        "note": "Nota",
+        "tip": "Dica",
+        "important": "Importante",
+        "warning": "Aviso",
+        "caution": "Cuidado",
+        "debug": "Depuração",
+        "example": "Exemplo",
+        "success": "Sucesso",
+        "help": "Ajuda",
+        "idea": "Ideia",
+        "pending": "Pendente",
+        "security": "Segurança",
+        "beta": "Beta",
+        "best-practice": "Boa Prática"
+    },
+    "components": {
+        "MultiSelectInput": {
+            "placeholder": "Selecione..."
+        },
+        "DatePickerInput": {
+            "placeholder": {
+                "single": "Escolha uma data",
+                "range": "Escolha um período"
+            }
+        }
+    }
+}

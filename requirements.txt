@@ -1,6 +1,7 @@
 # --- Core LangChain & OpenAI ---
-langchain==0.1.16
+langchain>=0.3.0
 langchain-openai
+langchain-community
 langchain-core
 langchain-text-splitters
 
@@ -8,27 +9,28 @@ langchain-text-splitters
 llama-index-core>=0.10.0
 
 # --- Vector Store ---
-langchain-chroma==0.1.4
-chromadb==0.5.3
+langchain-chroma>=0.2.0
+chromadb>=0.5.3
 
-# --- Web Framework & Server ---
-flask==2.3.3
-flask-cors==4.0.0
-gunicorn
-eventlet
-gevent>=24.0.0
-google-auth
+# --- Chainlit Framework ---
+chainlit>=2.9.0
 
-# --- Code Parsing & Graph (COM VERSÃO FIXADA) ---
+# --- Data Persistence (SQLAlchemy + PostgreSQL) ---
+sqlalchemy[asyncio]
+asyncpg
+aiosqlite
+
+# --- Code Parsing & Graph ---
 tree-sitter==0.20.4
 networkx
 lark
 
 # --- Data Loading ---
-pypdf==4.2.0
+pypdf>=4.2.0
 
 # --- Utilities ---
-python-dotenv==1.0.0
+python-dotenv>=1.0.0
 redis>=5.0.1
-tiktoken==0.6.0
+tiktoken>=0.6.0
 tqdm
+httpx
