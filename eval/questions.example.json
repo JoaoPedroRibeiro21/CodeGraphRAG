@@ -1,0 +1,14 @@
+[
+  {
+    "id": "exemplo-sql-produto",
+    "question": "Qual tabela participa da validacao de produto nao cadastrado?",
+    "expected_category": "sql_dados",
+    "expected_evidence_terms": ["produto", "select"]
+  },
+  {
+    "id": "exemplo-erro-pdv",
+    "question": "Por que aparece a mensagem de erro no fechamento do PDV?",
+    "expected_category": "erro",
+    "expected_evidence_terms": ["erro", "fechamento"]
+  }
+]
