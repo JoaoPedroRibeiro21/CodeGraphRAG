@@ -21,6 +21,9 @@ RUN pip install --upgrade pip && \
 # Copia o resto da aplicação
 COPY . /app
 
+# Falha cedo se o build recebeu ponteiros Git LFS em vez dos arquivos reais.
+RUN python check_lfs_files.py
+
 # --- ETAPA DE PRÉ-PROCESSAMENTO COMPLETA ---
 # A chave OpenAI é necessária durante o build para gerar embeddings
 ARG OPENAI_API_KEY

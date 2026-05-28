@@ -39,6 +39,7 @@ if not asyncio.run(check()):
 done
 
 echo "Running database initialization (init_db.py)..."
+python check_lfs_files.py || exit 1
 python init_db.py || echo "Warning: init_db.py failed, but continuing..."
 
 # RAG Generation Sequence
