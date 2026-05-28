@@ -350,6 +350,36 @@ stage('Build and Push') {
 }
 ```
 
+Quando o build for parametrizado por tag do GitHub, o Jenkins deve fazer checkout Git da tag e depois baixar os objetos LFS no mesmo workspace que sera usado como contexto do Docker:
+
+```groovy
+parameters {
+  string(name: 'GIT_TAG', defaultValue: 'v1.0.0', description: 'Tag GitHub para build')
+}
+
+stage('Checkout Tag') {
+  steps {
+    checkout([
+      $class: 'GitSCM',
+      branches: [[name: "refs/tags/${params.GIT_TAG}"]],
+      userRemoteConfigs: [[url: 'https://github.com/vrsoftbr/VRChat-AI.git']],
+      extensions: [[$class: 'CleanBeforeCheckout']]
+    ])
+    sh 'git lfs install'
+    sh 'git lfs pull'
+  }
+}
+
+stage('Build and Push') {
+  steps {
+    sh 'docker build -t dockerhub/vrchat-ai:${GIT_TAG} .'
+    sh 'docker push dockerhub/vrchat-ai:${GIT_TAG}'
+  }
+}
+```
+
+Evite gerar a imagem com contexto remoto, como `docker build https://github.com/...#tag`, ou baixando `source.zip`/`tar.gz` da tag. Esses formatos podem trazer ponteiros LFS em vez dos arquivos reais. Use sempre checkout Git + `git lfs pull` + `docker build .`.
+
 O `dockerfile` tambem executa uma validacao de ponteiros LFS durante o build. Essa validacao falha cedo se algum arquivo critico chegar como ponteiro LFS, evitando que o pod suba com erro de `SyntaxError` ou com base documental incompleta.
 
 ## Execucao Local Sem Docker
