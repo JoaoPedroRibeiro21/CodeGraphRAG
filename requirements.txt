@@ -34,3 +34,4 @@ redis>=5.0.1
 tiktoken>=0.6.0
 tqdm
 httpx
+pytest
