@@ -39,7 +39,7 @@ if not asyncio.run(check()):
 done
 
 echo "Running database initialization (init_db.py)..."
-python check_lfs_files.py || exit 1
+python -c "import os,sys; prefix='version https://git-lfs.github.com/spec/v1'; paths=['app_chainlit.py','init_db.py','cleanup_db.py','preCarregaDataBase.py','preCarregaGrafo.py','files']; bad=[]; walk=lambda p: ([p] if os.path.isfile(p) else [os.path.join(r,n) for r,_,fs in os.walk(p) for n in fs] if os.path.isdir(p) else []); [bad.append(f) for p in paths for f in walk(p) if open(f,'rb').readline(200).decode('utf-8','ignore').strip()==prefix]; print('Validacao Git LFS OK' if not bad else 'ERRO: arquivos Git LFS como ponteiros:\n'+'\n'.join(bad[:50])); sys.exit(1 if bad else 0)" || exit 1
 python init_db.py || echo "Warning: init_db.py failed, but continuing..."
 
 # RAG Generation Sequence

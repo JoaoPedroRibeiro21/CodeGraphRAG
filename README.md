@@ -316,6 +316,42 @@ Executar limpeza de dados antigos
 Iniciar Chainlit
 ```
 
+## Build Em Jenkins, Docker Hub E ArgoCD
+
+Quando a imagem Docker e gerada pelo Jenkins e o ArgoCD apenas puxa a imagem pronta do Docker Hub, o `git lfs pull` deve rodar no Jenkins antes do `docker build`.
+
+Isso e necessario porque o Docker recebe um build context ja montado. Se o checkout do Jenkins estiver com ponteiros Git LFS em vez dos arquivos reais, a imagem tambem sera criada com ponteiros. O ArgoCD nao consegue corrigir isso depois, pois ele apenas implanta a imagem publicada.
+
+Fluxo recomendado no Jenkins:
+
+```bash
+git lfs install
+git lfs pull
+docker build -t sua-imagem:tag .
+docker push sua-imagem:tag
+```
+
+Exemplo de stage declarativo:
+
+```groovy
+stage('Checkout LFS') {
+  steps {
+    checkout scm
+    sh 'git lfs install'
+    sh 'git lfs pull'
+  }
+}
+
+stage('Build and Push') {
+  steps {
+    sh 'docker build -t dockerhub/vrchat-ai:${BUILD_NUMBER} .'
+    sh 'docker push dockerhub/vrchat-ai:${BUILD_NUMBER}'
+  }
+}
+```
+
+O `dockerfile` tambem executa uma validacao de ponteiros LFS durante o build. Essa validacao falha cedo se algum arquivo critico chegar como ponteiro LFS, evitando que o pod suba com erro de `SyntaxError` ou com base documental incompleta.
+
 ## Execucao Local Sem Docker
 
 Para rodar a interface Chainlit localmente:
