@@ -59,6 +59,7 @@ Resposta em linguagem funcional/técnica conforme a pergunta
 | `graph_retrieval.py` | Centraliza recuperação de código, expansão por grafo, score de confiança e montagem dos `CodeNode`. |
 | `build_graph.py` | Analisa o código Java com tree-sitter e gera o grafo NetworkX `code_graph.gpickle`. |
 | `preCarregaGrafo.py` | Indexa os nós do grafo no ChromaDB de código. |
+| `refresh_code_index.py` | Orquestra sync/build/index com TTL, detecção de mudanças e agendamento em loop. |
 | `code_artifacts.py` | Extrai artefatos funcionais do código, como SQL, tabelas, mensagens, parâmetros e permissões. |
 | `code_analysis_pipeline.py` | Pipeline multiagente de análise, consolidação e verificação do contexto técnico. |
 | `preCarregaDataBase.py` | Indexa documentos funcionais em PDF/TXT no ChromaDB documental. |
@@ -75,7 +76,7 @@ Resposta em linguagem funcional/técnica conforme a pergunta
 |---|---|---|
 | Documentos PDF | `files/BaseDeConhecimento_PDF` | Regras funcionais, procedimentos e material de suporte. |
 | Documentos TXT | `files/BaseDeConhecimento_TXT` | Conhecimento textual complementar, geralmente mais granular. |
-| Código Java VRMaster | `files/VRMaster` | Implementação real do ERP, regras técnicas, SQL, DAOs, services, controllers e telas. |
+| Código Java (multi-repo) | `repos.json` + `sync_repos.py` | Sincroniza os repositórios do ecossistema ERP para geração do grafo unificado. |
 | Grafo de código | `code_graph.gpickle` ou `/app/code_graph_storage/code_graph.gpickle` | Relações estruturais e chamadas entre classes/métodos Java. |
 | Chroma documental | `arquivos/chat_retrieval_db` | Embeddings da base documental. |
 | Chroma de código | `chroma_graph_db` | Embeddings dos nós do grafo de código. |
@@ -115,7 +116,7 @@ O projeto usa uma pipeline interna de agentes em `code_analysis_pipeline.py` ant
 
 ## Grafo De Código
 
-O grafo é gerado por `build_graph.py` usando `tree-sitter-java` para parsear o código Java do VRMaster.
+O grafo é gerado por `build_graph.py` usando `tree-sitter-java` para parsear o código Java dos repositórios sincronizados via `sync_repos.py`.
 
 O grafo é salvo em formato `pickle` como `code_graph.gpickle`.
 
@@ -142,6 +143,10 @@ O grafo é salvo em formato `pickle` como `code_graph.gpickle`.
 | `code` | Trecho de código associado ao nó. |
 | `line_start` | Linha inicial no arquivo. |
 | `line_end` | Linha final no arquivo. |
+| `source_repo` | Nome do repositório de origem do nó. |
+| `source_branch` | Branch sincronizada para o repositório. |
+| `source_commit` | Commit exato usado para gerar o nó. |
+| `relative_file_path` | Caminho relativo no repositório de origem. |
 | `artifacts` | Artefatos funcionais extraídos do código, como SQL, tabelas, mensagens, parâmetros, permissões e exceções. |
 
 ### Tipos De Arestas
@@ -220,6 +225,13 @@ QUESTION_CLASSIFIER_MODEL=gpt-4.1-2025-04-14
 CODE_ANALYSIS_MODEL=gpt-5.1-codex
 CODE_RETRIEVER_K=6
 CODE_GRAPH_PATH=./code_graph.gpickle
+GITHUB_TOKEN=...
+REPO_CONFIG_FILE=./repos.json
+REPO_BASE_DIR=./repos_sources
+REPO_STATE_FILE=./repos_sources/repos_state.json
+CODE_GRAPH_REBUILD_TTL_HOURS=336
+CODE_GRAPH_REFRESH_INTERVAL_HOURS=12
+CODE_GRAPH_BACKGROUND_REFRESH=true
 ```
 
 ### Variáveis Opcionais Da Pipeline De Código
@@ -244,10 +256,16 @@ python -m venv venv
 ./venv/bin/pip install -r requirements.txt
 ```
 
-Garanta que a pasta do código Java exista em:
+Garanta que o arquivo `repos.json` exista com os repositórios de código Java:
 
 ```text
-files/VRMaster
+repos.json
+```
+
+Sincronize os repositórios do GitHub:
+
+```bash
+./venv/bin/python sync_repos.py
 ```
 
 Garanta que a gramática Java do tree-sitter exista em:
@@ -274,15 +292,36 @@ Execute os passos abaixo sempre que houver mudança relevante em documentos, có
 
 Esse comando carrega PDFs e TXTs, divide em chunks e grava embeddings em `arquivos/chat_retrieval_db`.
 
-### 2. Grafo De Código
+### 2. Sincronização De Repositórios De Código
+
+```bash
+./venv/bin/python sync_repos.py
+```
+
+Esse comando sincroniza os repositórios definidos em `repos.json` e grava o estado em `REPO_STATE_FILE`.
+
+### 3. Atualização Orquestrada (Recomendado)
+
+```bash
+./venv/bin/python refresh_code_index.py --once
+```
+
+Esse comando executa o fluxo completo com regras automáticas:
+
+- roda `sync_repos.py`
+- compara commits atuais com a última build registrada
+- dispara rebuild/index quando houver mudança de commit, expiração de TTL ou ausência de artefatos
+- pula rebuild quando nada mudou
+
+### 4. Grafo De Código
 
 ```bash
 ./venv/bin/python build_graph.py
 ```
 
-Esse comando parseia `files/VRMaster`, gera a symbol table e salva o grafo em `code_graph.gpickle` localmente ou em `/app/code_graph_storage/code_graph.gpickle` dentro do container.
+Esse comando parseia os repositórios sincronizados, gera a symbol table e salva o grafo em `code_graph.gpickle` localmente ou em `/app/code_graph_storage/code_graph.gpickle` dentro do container.
 
-### 3. Base Vetorial De Código
+### 5. Base Vetorial De Código
 
 ```bash
 ./venv/bin/python preCarregaGrafo.py
@@ -309,8 +348,8 @@ O `entrypoint.sh` executa a sequência de inicialização:
 ```text
 Verificar PostgreSQL
 Executar init_db.py
-Gerar grafo se estiver ausente
-Indexar código se Chroma estiver ausente
+Executar refresh_code_index.py --once
+Iniciar loop opcional de refresh em background
 Indexar documentos se Chroma documental estiver ausente
 Executar limpeza de dados antigos
 Iniciar Chainlit
@@ -329,7 +368,7 @@ Para rodar a interface Chainlit localmente:
 | Mudança | Comando recomendado |
 |---|---|
 | Novo PDF ou TXT | `./venv/bin/python preCarregaDataBase.py` |
-| Mudança no código Java | `./venv/bin/python build_graph.py` e depois `./venv/bin/python preCarregaGrafo.py` |
+| Mudança nos repositórios de código | `./venv/bin/python refresh_code_index.py --once` |
 | Mudança no builder do grafo | `./venv/bin/python build_graph.py` e depois `./venv/bin/python preCarregaGrafo.py` |
 | Mudança nos prompts de multiagentes | Reiniciar aplicação após validar sintaxe. |
 | Mudança no prompt final | Reiniciar aplicação após validar comportamento. |

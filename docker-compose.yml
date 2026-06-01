@@ -42,12 +42,18 @@ services:
         condition: service_healthy
     env_file:
       - .env
+    environment:
+      CODE_GRAPH_BACKGROUND_REFRESH: "true"
+      CODE_GRAPH_REFRESH_INTERVAL_HOURS: "12"
+      CODE_GRAPH_REBUILD_TTL_HOURS: "336"
     volumes:
       - ./chroma_graph_db:/app/chroma_graph_db
       - ./arquivos/chat_retrieval_db:/app/arquivos/chat_retrieval_db
       - code_graph_data:/app/code_graph_storage
+      - repos_sources_data:/app/repos_sources
 
 volumes:
   redis_data:
   postgres_data:
   code_graph_data:
+  repos_sources_data:

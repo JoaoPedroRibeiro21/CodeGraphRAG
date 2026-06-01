@@ -12,6 +12,8 @@ tree-sitter-java/
 
 code_graph.gpickle
 
+repos_sources/
+
 *.pt
 *.ckpt
 *.csv
@@ -21,4 +23,3 @@ code_graph.gpickle
 __pycache__/
 *.pyc
 *.pyo
-

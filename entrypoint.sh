@@ -44,14 +44,12 @@ python init_db.py || echo "Warning: init_db.py failed, but continuing..."
 
 # RAG Generation Sequence
 mkdir -p /app/code_graph_storage
-if [ ! -s "/app/code_graph_storage/code_graph.gpickle" ]; then
-    echo "RAG: code_graph.gpickle missing or empty. Running build_graph.py..."
-    python build_graph.py || echo "Warning: build_graph.py failed."
-fi
+echo "RAG: running code index refresh orchestrator (single cycle)..."
+python refresh_code_index.py --once || echo "Warning: refresh_code_index.py --once failed."
 
-if [ ! -d "chroma_graph_db" ] || [ -z "$(ls -A chroma_graph_db 2>/dev/null)" ]; then
-    echo "RAG: chroma_graph_db missing or empty. Running preCarregaGrafo.py..."
-    python preCarregaGrafo.py || echo "Warning: preCarregaGrafo.py failed."
+if [ "${CODE_GRAPH_BACKGROUND_REFRESH:-true}" = "true" ]; then
+  echo "RAG: starting background refresh loop..."
+  python refresh_code_index.py --loop &
 fi
 
 if [ ! -d "arquivos/chat_retrieval_db" ] || [ -z "$(ls -A arquivos/chat_retrieval_db 2>/dev/null)" ]; then

@@ -1,0 +1,31 @@
+{
+  "default_branch": "main",
+  "sync_ttl_hours": 336,
+  "repositories": [
+    {
+      "name": "VRMaster",
+      "url": "https://github.com/vrsoftbr/VRMaster.git",
+      "priority": "primary"
+    },
+    {
+      "name": "VRPdv",
+      "url": "https://github.com/vrsoftbr/VRPdv.git",
+      "priority": "secondary"
+    },
+    {
+      "name": "VRGerenciadorNFCe",
+      "url": "https://github.com/vrsoftbr/VRGerenciadorNFCe.git",
+      "priority": "secondary"
+    },
+    {
+      "name": "VRAutorizador",
+      "url": "https://github.com/vrsoftbr/VRAutorizador.git",
+      "priority": "secondary"
+    },
+    {
+      "name": "VRConcentrador",
+      "url": "https://github.com/vrsoftbr/VRConcentrador.git",
+      "priority": "secondary"
+    }
+  ]
+}
