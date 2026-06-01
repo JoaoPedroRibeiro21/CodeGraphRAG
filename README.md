@@ -316,72 +316,6 @@ Executar limpeza de dados antigos
 Iniciar Chainlit
 ```
 
-## Build Em Jenkins, Docker Hub E ArgoCD
-
-Quando a imagem Docker é gerada pelo Jenkins e o ArgoCD apenas puxa a imagem pronta do Docker Hub, o `git lfs pull` deve rodar no Jenkins antes do `docker build`.
-
-Isso é necessário porque o Docker recebe um build context já montado. Se o checkout do Jenkins estiver com ponteiros Git LFS em vez dos arquivos reais, a imagem também será criada com ponteiros. O ArgoCD não consegue corrigir isso depois, pois ele apenas implanta a imagem publicada.
-
-Fluxo recomendado no Jenkins:
-
-```bash
-git lfs install
-git lfs pull
-docker build -t sua-imagem:tag .
-docker push sua-imagem:tag
-```
-
-Exemplo de stage declarativo:
-
-```groovy
-stage('Checkout LFS') {
-  steps {
-    checkout scm
-    sh 'git lfs install'
-    sh 'git lfs pull'
-  }
-}
-
-stage('Build and Push') {
-  steps {
-    sh 'docker build -t dockerhub/vrchat-ai:${BUILD_NUMBER} .'
-    sh 'docker push dockerhub/vrchat-ai:${BUILD_NUMBER}'
-  }
-}
-```
-
-Quando o build for parametrizado por tag do GitHub, o Jenkins deve fazer checkout Git da tag e depois baixar os objetos LFS no mesmo workspace que será usado como contexto do Docker:
-
-```groovy
-parameters {
-  string(name: 'GIT_TAG', defaultValue: 'v1.0.0', description: 'Tag GitHub para build')
-}
-
-stage('Checkout Tag') {
-  steps {
-    checkout([
-      $class: 'GitSCM',
-      branches: [[name: "refs/tags/${params.GIT_TAG}"]],
-      userRemoteConfigs: [[url: 'https://github.com/vrsoftbr/VRChat-AI.git']],
-      extensions: [[$class: 'CleanBeforeCheckout']]
-    ])
-    sh 'git lfs install'
-    sh 'git lfs pull'
-  }
-}
-
-stage('Build and Push') {
-  steps {
-    sh 'docker build -t dockerhub/vrchat-ai:${GIT_TAG} .'
-    sh 'docker push dockerhub/vrchat-ai:${GIT_TAG}'
-  }
-}
-```
-
-Evite gerar a imagem com contexto remoto, como `docker build https://github.com/...#tag`, ou baixando `source.zip`/`tar.gz` da tag. Esses formatos podem trazer ponteiros LFS em vez dos arquivos reais. Use sempre checkout Git + `git lfs pull` + `docker build .`.
-
-O `dockerfile` também executa uma validação de ponteiros LFS durante o build. Essa validação falha cedo se algum arquivo crítico chegar como ponteiro LFS, evitando que o pod suba com erro de `SyntaxError` ou com base documental incompleta.
-
 ## Execução Local Sem Docker
 
 Para rodar a interface Chainlit localmente:
@@ -451,19 +385,6 @@ PY
 - Evite usar chamadas de baixa confiança como evidência definitiva.
 - Teste perguntas reais do suporte antes de considerar uma mudança aprovada.
 - Documente mudanças de arquitetura neste README para facilitar onboarding.
-
-## Limitações Conhecidas
-
-- A resolução de chamadas Java ainda é heurística e não substitui um compilador Java completo, classpath real ou análise de bytecode.
-- Encadeamentos como `obj.getX().executar()` ainda podem perder o tipo intermediário quando o retorno de `getX()` não é inferido com segurança.
-- Overloads são filtrados principalmente por quantidade de argumentos; quando os tipos dos argumentos não são conhecidos, a chamada pode ficar parcialmente ambígua.
-- Chamadas polimórficas por interface, herança, classes abstratas e sobrescrita podem recuperar apenas parte dos destinos possíveis.
-- Chamadas dinâmicas, reflection, factories complexas e injeção indireta podem não ser totalmente resolvidas.
-- A expansão do grafo evita chamadas `low` por padrão para reduzir falsos positivos, mas isso também pode deixar fluxos reais fora do contexto.
-- O verificador valida as evidências recuperadas, mas não consegue validar código que não foi recuperado.
-- Perguntas muito amplas podem recuperar contexto excessivo ou pouco específico, principalmente quando combinam regra funcional, SQL e fluxo técnico na mesma pergunta.
-- Trechos muito grandes podem ser divididos em batches na pipeline de código, o que reduz a visão global de fluxos longos.
-- A qualidade da resposta depende da atualização dos índices documental e de código: `arquivos/chat_retrieval_db`, `chroma_graph_db` e `code_graph.gpickle`.
 
 ## Resumo Do Fluxo De Manutenção
 
