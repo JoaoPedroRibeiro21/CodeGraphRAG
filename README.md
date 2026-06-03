@@ -217,8 +217,9 @@ Crie um arquivo `.env` local com as variáveis necessárias. Não versione chave
 ```env
 OPENAI_API_KEY=...
 DATABASE_URL=postgresql+asyncpg://vrchat:vrchat@postgres:5432/vrchat
-GOOGLE_CLIENT_ID=...
-GOOGLE_CLIENT_SECRET=...
+OAUTH_GOOGLE_CLIENT_ID=...
+OAUTH_GOOGLE_CLIENT_SECRET=...
+DISABLE_GOOGLE_AUTH=true
 CHAINLIT_AUTH_SECRET=...
 CHAT_MODEL=gpt-4.1-2025-04-14
 QUESTION_CLASSIFIER_MODEL=gpt-4.1-2025-04-14
@@ -233,6 +234,8 @@ CODE_GRAPH_REBUILD_TTL_HOURS=336
 CODE_GRAPH_REFRESH_INTERVAL_HOURS=12
 CODE_GRAPH_BACKGROUND_REFRESH=true
 ```
+
+Para desativar login com Google em homologação/local, defina `DISABLE_GOOGLE_AUTH=true`.
 
 ### Variáveis Opcionais Da Pipeline De Código
 

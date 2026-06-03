@@ -23,3 +23,7 @@ repos_sources/
 __pycache__/
 *.pyc
 *.pyo
+
+eval/reports/
+local_chat_retrieval_db/
+local_chroma_graph_db/

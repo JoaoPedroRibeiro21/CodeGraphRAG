@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   redis:
     image: redis:latest
@@ -46,9 +44,18 @@ services:
       CODE_GRAPH_BACKGROUND_REFRESH: "true"
       CODE_GRAPH_REFRESH_INTERVAL_HOURS: "12"
       CODE_GRAPH_REBUILD_TTL_HOURS: "336"
+      CODE_VERIFICATION_REPAIR_ATTEMPTS: "0"
+      CODE_ANALYSIS_TIMEOUT_SECONDS: "8"
+      CODE_ANALYSIS_BUDGET_SECONDS: "6"
+      CODE_BATCH_TOKEN_LIMIT: "14000"
+      CODE_NODE_CHUNK_TOKEN_LIMIT: "4000"
+      CODE_ANALYSIS_MAX_NODES_LIGHT: "6"
+      CODE_ANALYSIS_MAX_NODES_DEEP: "8"
+      HIDE_INTERNAL_LIMITATIONS: "true"
+      ENABLE_BENCH_API: "true"
     volumes:
-      - ./chroma_graph_db:/app/chroma_graph_db
-      - ./arquivos/chat_retrieval_db:/app/arquivos/chat_retrieval_db
+      - ./chroma_graph_db:/app/chroma_graph_db:Z
+      - ./arquivos/chat_retrieval_db:/app/arquivos/chat_retrieval_db:Z
       - code_graph_data:/app/code_graph_storage
       - repos_sources_data:/app/repos_sources
 

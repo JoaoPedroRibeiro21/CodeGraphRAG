@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import pickle
 import subprocess
 import sys
 import time
@@ -119,12 +120,30 @@ def run_python(script_name: str, env: dict[str, str]) -> int:
     return proc.returncode
 
 
-def persist_graph_meta(meta_path: Path, commits: dict[str, str], reason: str) -> None:
+def persist_graph_meta(meta_path: Path, commits: dict[str, str], reason: str, graph_path: Path, chroma_dir: Path) -> None:
     meta_path.parent.mkdir(parents=True, exist_ok=True)
+    graph_node_count = 0
+    graph_edge_count = 0
+    if graph_path.exists():
+        try:
+            with open(graph_path, "rb") as graph_file:
+                graph = pickle.load(graph_file)
+            graph_node_count = int(getattr(graph, "number_of_nodes", lambda: 0)())
+            graph_edge_count = int(getattr(graph, "number_of_edges", lambda: 0)())
+        except Exception:
+            graph_node_count = 0
+            graph_edge_count = 0
+
+    index_schema_version = os.getenv("CODE_GRAPH_INDEX_SCHEMA_VERSION", "code_graph_v3_multirepo")
+    chroma_present = chroma_dir.exists() and chroma_dir.is_dir() and any(chroma_dir.iterdir())
     payload = {
         "built_at": utc_now().isoformat(),
         "repo_commits": commits,
         "reason": reason,
+        "index_schema_version": index_schema_version,
+        "graph_node_count": graph_node_count,
+        "graph_edge_count": graph_edge_count,
+        "chroma_present": chroma_present,
     }
     meta_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
 
@@ -175,7 +194,7 @@ def run_refresh_once() -> int:
             print(f"[refresh] erro: preCarregaGrafo.py retornou {index_rc}")
             return index_rc
 
-        persist_graph_meta(meta_path, commits, rebuild_reason)
+        persist_graph_meta(meta_path, commits, rebuild_reason, graph_path, chroma_dir)
         print(f"[refresh] rebuild concluído. Meta atualizada em {meta_path}")
         return 0
 
