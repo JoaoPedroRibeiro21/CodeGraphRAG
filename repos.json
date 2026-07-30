@@ -3,28 +3,15 @@
   "sync_ttl_hours": 336,
   "repositories": [
     {
-      "name": "VRMaster",
-      "url": "https://github.com/vrsoftbr/VRMaster.git",
+      "name": "spring-petclinic",
+      "url": "https://github.com/spring-projects/spring-petclinic.git",
+      "branch": "main",
       "priority": "primary"
     },
     {
-      "name": "VRPdv",
-      "url": "https://github.com/vrsoftbr/VRPdv.git",
-      "priority": "secondary"
-    },
-    {
-      "name": "VRGerenciadorNFCe",
-      "url": "https://github.com/vrsoftbr/VRGerenciadorNFCe.git",
-      "priority": "secondary"
-    },
-    {
-      "name": "VRAutorizador",
-      "url": "https://github.com/vrsoftbr/VRAutorizador.git",
-      "priority": "secondary"
-    },
-    {
-      "name": "VRConcentrador",
-      "url": "https://github.com/vrsoftbr/VRConcentrador.git",
+      "name": "spring-petclinic-rest",
+      "url": "https://github.com/spring-petclinic/spring-petclinic-rest.git",
+      "branch": "master",
       "priority": "secondary"
     }
   ]

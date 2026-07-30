@@ -1,0 +1,67 @@
+# CodexGraph-RAG — configuração principal
+# Coloque os segredos no .env (ex: CG_LLM__API_KEY=sk-...)
+# ou preencha via wizard de configuração antes da primeira execução.
+
+product_name: "Spring PetClinic"
+language: "pt-BR"
+profile: "profiles/petclinic.yaml"
+
+llm:
+  provider: openai
+  model: gpt-4o
+  # api_key: definir via CG_LLM__API_KEY ou wizard (NUNCA versione este valor)
+  temperature: 0.0
+
+classifier:
+  provider: openai
+  model: gpt-4o-mini
+
+code_analysis:
+  provider: openai
+  model: gpt-4o
+
+code_verification:
+  provider: openai
+  model: gpt-4o
+
+embeddings:
+  provider: openai
+  model: text-embedding-3-small
+
+retrieval:
+  code_k: 6
+  doc_k: 4
+  max_final_nodes: 24
+  max_expansions: 12
+  max_depth: 2
+  min_score: 0.35
+
+code_graph:
+  code_languages:
+    - java
+  graph_path: "./code_graph.gpickle"
+  container_graph_path: "/app/code_graph_storage/code_graph.gpickle"
+  chroma_path: "./chroma_graph_db"
+  rebuild_ttl_hours: 336
+  refresh_interval_hours: 12
+  background_refresh: true
+  index_schema_version: "code_graph_v3_multirepo"
+
+repos:
+  default_branch: main
+  sync_ttl_hours: 336
+  base_dir: "./repos_sources"
+  state_file: "./repos_sources/repos_state.json"
+
+chainlit:
+  name: "CodexGraph"
+  port: 8000
+  host: "0.0.0.0"
+
+auth:
+  provider: none
+  # google_client_id:     # CG_AUTH__GOOGLE_CLIENT_ID
+  # google_client_secret: # CG_AUTH__GOOGLE_CLIENT_SECRET
+
+bench:
+  enabled: false

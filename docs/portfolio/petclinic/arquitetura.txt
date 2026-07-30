@@ -1,0 +1,81 @@
+Arquitetura do Spring PetClinic
+==============================
+
+Visão geral
+-----------
+O Spring PetClinic é um sistema de demonstração para gerenciamento de
+clínica veterinária. Ele foi criado pela Spring como exemplo didático de
+aplicação Spring Boot com camadas web, serviço, persistência e modelo de
+dados.
+
+No contexto do CodexGraph-RAG, ele serve como dataset real e aberto para
+demonstrar a capacidade de responder perguntas sobre código, arquitetura,
+fluxos de negócio e modelo de dados.
+
+Repositórios indexados
+---------------------
+1. spring-projects/spring-petclinic (branch main)
+   Aplicação completa com interface Thymeleaf e backend Spring Boot.
+
+2. spring-petclinic/spring-petclinic-rest (branch master)
+   API REST do mesmo domínio, sem interface web. Útil para perguntas
+   técnicas sobre endpoints, DTOs e controllers REST.
+
+Camadas principais (PetClinic canonical)
+-----------------------------------------
+* Web / Controller
+  - Processa requisições HTTP e delega para a camada de serviço.
+  - Controllers encontrados em:
+      src/main/java/org/springframework/samples/petclinic/owner/
+      src/main/java/org/springframework/samples/petclinic/vet/
+      src/main/java/org/springframework/samples/petclinic/visit/
+
+* Service
+  - Contém a lógica de negócio, validações e coordenação entre controllers
+    e repositories.
+  - Services encontrados junto aos controllers na mesma estrutura de pacotes.
+
+* Repository / Persistência
+  - Interfaces Spring Data JPA que acessam o banco de dados.
+  - Repositórios normalmente nomeados como *Repository.
+
+* Modelo de dados (JPA Entities)
+  - Owner: dono do animal, com dados pessoais e endereço.
+  - Pet: animal vinculado a um Owner.
+  - Visit: consulta veterinária de um Pet em uma data.
+  - Vet: veterinário com possíveis especialidades.
+  - Specialty: especialidade médica de um veterinário.
+
+* Visão (Thymeleaf)
+  - Templates HTML em src/main/resources/templates/.
+  - Formulários de cadastro/edição e telas de listagem.
+
+Fluxos de negócio comuns
+------------------------
+1. Cadastro de dono
+   OwnerController -> OwnerRepository/Service -> banco de dados.
+
+2. Cadastro de pet para um dono
+   PetController (dentro do pacote owner) -> PetRepository.
+
+3. Agendamento de visita
+   VisitController -> VisitRepository.
+   Uma visita está sempre vinculada a um Pet.
+
+4. Busca de veterinários
+   VetController -> VetRepository.
+   Veterinários podem ter várias Specialty.
+
+Pontos de atenção para perguntas
+--------------------------------
+* A busca de donos geralmente é feita por sobrenome (lastName).
+* Visitas exigem uma data e um Pet existente.
+* O sistema usa banco H2 em memória por padrão, mas pode rodar com
+  MySQL ou PostgreSQL via profiles do Spring.
+* Validações de formulário usam Bean Validation (anotações como @NotBlank).
+
+Como usar este documento
+--------------------------
+Este arquivo foi incluído na base documental do CodexGraph-RAG para enriquecer
+as respostas sobre o domínio veterinário. Ele pode ser expandido com mais
+detalhes de fluxos conforme as perguntas do portfólio forem sendo testadas.
