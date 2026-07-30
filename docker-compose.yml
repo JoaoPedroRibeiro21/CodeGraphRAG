@@ -11,26 +11,24 @@ services:
     image: postgres:16
     container_name: postgres
     environment:
-      POSTGRES_DB: vrchat
-      POSTGRES_USER: vrchat
-      POSTGRES_PASSWORD: vrchat
+      POSTGRES_DB: ${POSTGRES_DB:-codexgraph}
+      POSTGRES_USER: ${POSTGRES_USER:-codexgraph}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-codexgraph}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U vrchat -d vrchat"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-codexgraph} -d ${POSTGRES_DB:-codexgraph}"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  vrchat:
+  codexgraph:
     build:
       context: .
       dockerfile: dockerfile
-      args:
-        OPENAI_API_KEY: ${OPENAI_API_KEY}
-    container_name: vrchat
+    container_name: codexgraph
     ports:
       - "8000:8000"
     depends_on:
@@ -41,6 +39,9 @@ services:
     env_file:
       - .env
     environment:
+      APP_NAME: codexgraph
+      DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://codexgraph:codexgraph@postgres:5432/codexgraph}
+      REPO_CONFIG_FILE: "repos.json"
       CODE_GRAPH_BACKGROUND_REFRESH: "true"
       CODE_GRAPH_REFRESH_INTERVAL_HOURS: "12"
       CODE_GRAPH_REBUILD_TTL_HOURS: "336"
@@ -52,7 +53,7 @@ services:
       CODE_ANALYSIS_MAX_NODES_LIGHT: "6"
       CODE_ANALYSIS_MAX_NODES_DEEP: "8"
       HIDE_INTERNAL_LIMITATIONS: "true"
-      ENABLE_BENCH_API: "true"
+      ENABLE_BENCH_API: "false"
     volumes:
       - ./chroma_graph_db:/app/chroma_graph_db:Z
       - ./arquivos/chat_retrieval_db:/app/arquivos/chat_retrieval_db:Z

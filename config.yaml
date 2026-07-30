@@ -50,8 +50,8 @@ code_graph:
 repos:
   default_branch: main
   sync_ttl_hours: 336
-  base_dir: "./repos_sources"
-  state_file: "./repos_sources/repos_state.json"
+  base_dir: "/app/repos_sources"
+  state_file: "/app/repos_sources/repos_state.json"
 
 chainlit:
   name: "CodexGraph"

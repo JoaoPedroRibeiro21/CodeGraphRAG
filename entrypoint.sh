@@ -1,17 +1,20 @@
 #!/bin/bash
-# entrypoint.sh
+# entrypoint.sh — CodexGraph-RAG
+
+set -e
 
 echo "Starting launch sequence..."
-
-# Show environment for debugging (safely)
 echo "DATABASE_URL is set."
+
+APP_NAME="${APP_NAME:-codexgraph}"
+CHAINLIT_HOST="${CHAINLIT_HOST:-0.0.0.0}"
+CHAINLIT_PORT="${CHAINLIT_PORT:-8000}"
 
 max_retries=30
 count=0
 
 echo "Checking if database is reachable at ${DATABASE_URL}..."
 
-# Use a simpler python check that prints errors
 until python -c "
 import asyncio
 import os
@@ -39,13 +42,19 @@ if not asyncio.run(check()):
 done
 
 echo "Running database initialization (init_db.py)..."
-python -c "import os,sys; prefix='version https://git-lfs.github.com/spec/v1'; paths=['app_chainlit.py','init_db.py','cleanup_db.py','preCarregaDataBase.py','preCarregaGrafo.py','files']; bad=[]; walk=lambda p: ([p] if os.path.isfile(p) else [os.path.join(r,n) for r,_,fs in os.walk(p) for n in fs] if os.path.isdir(p) else []); [bad.append(f) for p in paths for f in walk(p) if open(f,'rb').readline(200).decode('utf-8','ignore').strip()==prefix]; print('Validacao Git LFS OK' if not bad else 'ERRO: arquivos Git LFS como ponteiros:\n'+'\n'.join(bad[:50])); sys.exit(1 if bad else 0)" || exit 1
 python init_db.py || echo "Warning: init_db.py failed, but continuing..."
 
 # RAG Generation Sequence
-mkdir -p /app/code_graph_storage
+mkdir -p /app/code_graph_storage /app/repos_sources
 echo "RAG: running code index refresh orchestrator (single cycle)..."
-python refresh_code_index.py --once || echo "Warning: refresh_code_index.py --once failed."
+python refresh_code_index.py --once || { echo "ERROR: refresh_code_index.py failed. The graph could not be built."; exit 1; }
+
+GRAPH_FILE="${CODE_GRAPH_PATH:-/app/code_graph_storage/code_graph.gpickle}"
+if [ ! -s "$GRAPH_FILE" ]; then
+  echo "ERROR: graph file not found or empty at $GRAPH_FILE after refresh."
+  exit 1
+fi
+echo "RAG: graph ready at $GRAPH_FILE"
 
 if [ "${CODE_GRAPH_BACKGROUND_REFRESH:-true}" = "true" ]; then
   echo "RAG: starting background refresh loop..."
@@ -60,6 +69,5 @@ fi
 echo "Running data retention cleanup (cleanup_db.py)..."
 python cleanup_db.py || echo "Warning: cleanup_db.py failed, but continuing..."
 
-echo "Starting Chainlit VRCHAT..."
-# Note: Added -h 0.0.0.0 and -p 8000 explicitly
-exec chainlit run app_chainlit.py --host 0.0.0.0 --port 8000
+echo "Starting Chainlit ${APP_NAME} on ${CHAINLIT_HOST}:${CHAINLIT_PORT}..."
+exec chainlit run app_chainlit.py --host "${CHAINLIT_HOST}" --port "${CHAINLIT_PORT}"
