@@ -5,7 +5,8 @@
 #   chmod +x start.sh
 #   ./start.sh
 #
-# O script assume que o .env já foi criado com OPENAI_API_KEY e outras variáveis.
+# O script assume que o .env já foi criado com CG_LLM__API_KEY (ou OPENAI_API_KEY)
+# e demais variáveis necessárias.
 
 set -euo pipefail
 
@@ -21,7 +22,23 @@ if ! command -v docker &> /dev/null; then
     exit 1
 fi
 
-if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
+if ! docker info &> /dev/null; then
+    echo "ERRO: daemon do docker não está acessível."
+    echo "Inicie o serviço do docker (ex.: sudo systemctl start docker) e tente novamente."
+    exit 1
+fi
+
+if ! command -v curl &> /dev/null; then
+    echo "ERRO: curl não está instalado."
+    exit 1
+fi
+
+# Detecta o comando correto do docker-compose (plugin moderno ou binário legado)
+if docker compose version &> /dev/null; then
+    COMPOSE_CMD=(docker compose)
+elif command -v docker-compose &> /dev/null; then
+    COMPOSE_CMD=(docker-compose)
+else
     echo "ERRO: docker-compose não está instalado."
     exit 1
 fi
@@ -29,33 +46,28 @@ fi
 # Verifica .env
 if [ ! -f .env ]; then
     echo "ERRO: arquivo .env não encontrado."
-    echo "Copie .env.example para .env e preencha pelo menos OPENAI_API_KEY e CG_LLM__API_KEY."
+    echo "Copie .env.example para .env e preencha pelo menos CG_LLM__API_KEY (ou OPENAI_API_KEY)."
     exit 1
 fi
 
-# Verifica se a API key da OpenAI está presente
-if ! grep -qE "^(CG_)?(LLM__API_KEY|OPENAI_API_KEY)=" .env; then
-    echo "AVISO: nenhuma API key da OpenAI detectada no .env."
+# Verifica se a API key está presente e com valor não vazio
+if ! grep -qE '^(OPENAI_API_KEY|CG_LLM__API_KEY)=[^[:space:]]' .env; then
+    echo "ERRO: nenhuma API key configurada no .env."
+    echo "Defina CG_LLM__API_KEY ou OPENAI_API_KEY com um valor válido."
+    exit 1
 fi
 
 echo "Atualizando branch petclinic-poc..."
 git fetch origin
 git checkout petclinic-poc
-git pull origin petclinic-poc
+git pull --ff-only origin petclinic-poc
 
 echo "Criando diretórios de dados persistentes..."
 mkdir -p ./chroma_graph_db
 mkdir -p ./arquivos/chat_retrieval_db
 
-# Decide o comando correto do docker-compose
-if docker compose version &> /dev/null; then
-    COMPOSE_CMD="docker compose"
-else
-    COMPOSE_CMD="docker-compose"
-fi
-
-echo "Subindo serviços com ${COMPOSE_CMD}..."
-${COMPOSE_CMD} up --build -d
+echo "Subindo serviços com ${COMPOSE_CMD[*]}..."
+"${COMPOSE_CMD[@]}" up --build -d
 
 echo ""
 echo "Aguardando aplicação ficar saudável (porta 8000)..."
@@ -71,5 +83,5 @@ done
 
 echo ""
 echo "AVISO: a aplicação não respondeu na porta 8000 após 2 minutos."
-echo "Verifique os logs: ${COMPOSE_CMD} logs -f codexgraph"
+echo "Verifique os logs: ${COMPOSE_CMD[*]} logs -f codexgraph"
 exit 1
