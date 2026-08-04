@@ -68,6 +68,12 @@ if [ ! -f docker-compose.yml ] && [ ! -f compose.yml ]; then
     exit 1
 fi
 
+# Confirma que estamos dentro de um repositório git
+if ! git rev-parse --is-inside-work-tree &> /dev/null; then
+    echo "ERRO: o diretório atual não é um repositório git."
+    exit 1
+fi
+
 # Verifica se a working tree está limpa antes de manipular a branch
 if [ -n "$(git status --porcelain)" ]; then
     echo "ERRO: a working tree contém alterações não commitadas."
@@ -78,7 +84,12 @@ fi
 echo "Atualizando branch petclinic-poc..."
 git fetch origin
 git checkout petclinic-poc
-git pull --ff-only origin petclinic-poc
+if ! git pull --ff-only origin petclinic-poc; then
+    echo ""
+    echo "ERRO: não foi possível atualizar a branch petclinic-poc com fast-forward."
+    echo "A branch local está à frente ou divergiu da origem. Resolva manualmente com git status e git log origin/petclinic-poc..petclinic-poc antes de reexecutar."
+    exit 1
+fi
 
 echo "Criando diretórios de dados persistentes..."
 mkdir -p ./chroma_graph_db
