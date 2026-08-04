@@ -55,8 +55,17 @@ if [ ! -f .env ]; then
     exit 1
 fi
 
+# Extrai o valor de uma variável do .env, removendo export, aspas e comentários
+_env_value() {
+    local key="$1"
+    grep -E "^[[:space:]]*(export[[:space:]]+)?${key}=" .env 2> /dev/null | tail -n1 | sed -E \
+        's/^[[:space:]]*(export[[:space:]]+)?'"${key}"'=[[:space:]]*//; s/[[:space:]]*#.*$//; s/^"(.*)"$/\1/; s/^'\''(.*)'\''$/\1/'
+}
+
 # Verifica se a API key está presente e com valor não vazio
-if ! grep -qE '^(OPENAI_API_KEY|CG_LLM__API_KEY)=[^[:space:]]' .env; then
+CG_KEY="$(_env_value CG_LLM__API_KEY)"
+OPENAI_KEY="$(_env_value OPENAI_API_KEY)"
+if [ -z "$CG_KEY" ] && [ -z "$OPENAI_KEY" ]; then
     echo "ERRO: nenhuma API key configurada no .env."
     echo "Defina CG_LLM__API_KEY ou OPENAI_API_KEY com um valor válido."
     exit 1
@@ -83,7 +92,11 @@ fi
 
 echo "Atualizando branch petclinic-poc..."
 git fetch origin
-git checkout petclinic-poc
+if ! git show-ref --verify --quiet refs/heads/petclinic-poc; then
+    git checkout -b petclinic-poc origin/petclinic-poc
+else
+    git checkout petclinic-poc
+fi
 if ! git pull --ff-only origin petclinic-poc; then
     echo ""
     echo "ERRO: não foi possível atualizar a branch petclinic-poc com fast-forward."
@@ -102,14 +115,14 @@ echo "Subindo serviços com ${COMPOSE_CMD[*]}..."
 "${COMPOSE_CMD[@]}" up --build -d
 
 echo ""
-echo "Aguardando aplicação ficar saudável (porta 8000)..."
+echo "Aguardando aplicação ficar saudável (127.0.0.1:8000)..."
 echo "Nota: na primeira inicialização o build do grafo pode levar vários minutos."
 
 # 5 minutos de timeout para cold start; cada curl leva no máximo 5s
 for i in {1..150}; do
-    if curl -fsSL --max-time 5 http://localhost:8000 &> /dev/null; then
+    if curl -fsSL --max-time 5 http://127.0.0.1:8000 &> /dev/null; then
         echo ""
-        echo "CodexGraph-RAG está disponível em: http://localhost:8000"
+        echo "CodexGraph-RAG está disponível em: http://127.0.0.1:8000"
         exit 0
     fi
     echo -n "."
@@ -117,6 +130,6 @@ for i in {1..150}; do
 done
 
 echo ""
-echo "AVISO: a aplicação não respondeu na porta 8000 após 5 minutos."
+echo "ERRO: a aplicação não respondeu em 127.0.0.1:8000 após 5 minutos."
 echo "Verifique os logs: ${COMPOSE_CMD[*]} logs -f codexgraph"
 exit 1
