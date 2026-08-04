@@ -55,17 +55,18 @@ if [ ! -f .env ]; then
     exit 1
 fi
 
-# Extrai o valor de uma variável do .env, removendo export, aspas e comentários
+# Extrai o valor de uma variável do .env, removendo export, aspas e comentários.
+# Retorna string vazia se a chave não existir (não falha sob set -o pipefail).
 _env_value() {
     local key="$1"
     grep -E "^[[:space:]]*(export[[:space:]]+)?${key}=" .env 2> /dev/null | tail -n1 | sed -E \
-        's/^[[:space:]]*(export[[:space:]]+)?'"${key}"'=[[:space:]]*//; s/[[:space:]]*#.*$//; s/^"(.*)"$/\1/; s/^'\''(.*)'\''$/\1/'
+        's/^[[:space:]]*(export[[:space:]]+)?'"${key}"'=[[:space:]]*//; s/^"(.*)"$/\1/; s/^'\''(.*)'\''$/\1/; s/[[:space:]]+$//' || true
 }
 
 # Verifica se a API key está presente e com valor não vazio
 CG_KEY="$(_env_value CG_LLM__API_KEY)"
 OPENAI_KEY="$(_env_value OPENAI_API_KEY)"
-if [ -z "$CG_KEY" ] && [ -z "$OPENAI_KEY" ]; then
+if [ -z "${CG_KEY//[[:space:]]/}" ] && [ -z "${OPENAI_KEY//[[:space:]]/}" ]; then
     echo "ERRO: nenhuma API key configurada no .env."
     echo "Defina CG_LLM__API_KEY ou OPENAI_API_KEY com um valor válido."
     exit 1
