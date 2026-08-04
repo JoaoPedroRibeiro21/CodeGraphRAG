@@ -55,7 +55,8 @@ if [ ! -f .env ]; then
     exit 1
 fi
 
-# Extrai o valor de uma variável do .env, removendo export, aspas e comentários.
+# Extrai o valor de uma variável do .env, removendo export, aspas, espaços no
+# final e ignorando linhas onde o comentário ocupa a própria linha.
 # Retorna string vazia se a chave não existir (não falha sob set -o pipefail).
 _env_value() {
     local key="$1"
@@ -112,18 +113,28 @@ mkdir -p ./arquivos/chat_retrieval_db
 echo "Validando configuração do compose..."
 "${COMPOSE_CMD[@]}" config -q
 
+# Configurações de health check (podem ser sobrescritas via .env)
+HEALTH_HOST="$(_env_value CHAINLIT_HOST)"
+HEALTH_HOST="${HEALTH_HOST:-127.0.0.1}"
+HEALTH_PORT="$(_env_value CHAINLIT_PORT)"
+HEALTH_PORT="${HEALTH_PORT:-8000}"
+HEALTH_SERVICE="$(_env_value COMPOSE_HEALTH_SERVICE)"
+HEALTH_SERVICE="${HEALTH_SERVICE:-codexgraph}"
+
+HEALTH_URL="http://${HEALTH_HOST}:${HEALTH_PORT}"
+
 echo "Subindo serviços com ${COMPOSE_CMD[*]}..."
 "${COMPOSE_CMD[@]}" up --build -d
 
 echo ""
-echo "Aguardando aplicação ficar saudável (127.0.0.1:8000)..."
+echo "Aguardando aplicação ficar saudável (${HEALTH_URL})..."
 echo "Nota: na primeira inicialização o build do grafo pode levar vários minutos."
 
 # 5 minutos de timeout para cold start; cada curl leva no máximo 5s
 for i in {1..150}; do
-    if curl -fsSL --max-time 5 http://127.0.0.1:8000 &> /dev/null; then
+    if curl -fsSL --max-time 5 "${HEALTH_URL}" &> /dev/null; then
         echo ""
-        echo "CodexGraph-RAG está disponível em: http://127.0.0.1:8000"
+        echo "CodexGraph-RAG está disponível em: ${HEALTH_URL}"
         exit 0
     fi
     echo -n "."
@@ -131,6 +142,6 @@ for i in {1..150}; do
 done
 
 echo ""
-echo "ERRO: a aplicação não respondeu em 127.0.0.1:8000 após 5 minutos."
-echo "Verifique os logs: ${COMPOSE_CMD[*]} logs -f codexgraph"
+echo "ERRO: a aplicação não respondeu em ${HEALTH_URL} após 5 minutos."
+echo "Verifique os logs: ${COMPOSE_CMD[*]} logs -f ${HEALTH_SERVICE}"
 exit 1
