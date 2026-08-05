@@ -1,4 +1,4 @@
-/* Override Chainlit's default Material-UI theme variables and classes to force the VR Software tracking orange */
+/* CodexGraph-RAG custom theme — primary orange accent for Chainlit UI */
 
 :root {
   /* Shadcn / Chainlit 2.0+ primary color (Orange #FF6B00) */

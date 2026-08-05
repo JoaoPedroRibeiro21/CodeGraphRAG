@@ -1,0 +1,88 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codexgraph-rag"
+version = "0.1.0"
+description = "Open-source Graph-RAG for codebases with multi-language parsing and domain profiles."
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.10"
+authors = [
+    { name = "João Pedro Ribeiro", email = "dejpribeiro@gmail.com" }
+]
+keywords = ["graph-rag", "code-retrieval", "rag", "code-graph", "tree-sitter"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+dependencies = [
+    # Core LangChain
+    "langchain>=0.3.0,<0.4.0",
+    "langchain-core>=0.3.0,<0.4.0",
+    "langchain-community>=0.3.0,<0.4.0",
+    "langchain-text-splitters>=0.3.0,<0.4.0",
+
+    # Loader / embeddings (default)
+    "llama-index-core>=0.10.0",
+    "langchain-chroma>=0.2.0",
+    "chromadb>=0.5.3",
+
+    # UI
+    "chainlit==2.9.6",
+    "fastapi==0.122.0",
+    "starlette==0.50.0",
+    "uvicorn==0.38.0",
+
+    # Persistence
+    "sqlalchemy[asyncio]",
+    "asyncpg",
+    "aiosqlite",
+
+    # Graph / parsing
+    "tree-sitter==0.20.4",
+    "networkx",
+    "lark",
+
+    # Utilities
+    "pypdf>=4.2.0",
+    "python-dotenv>=1.0.0",
+    "redis>=5.0.1",
+    "tiktoken>=0.6.0",
+    "tqdm",
+    "httpx==0.28.1",
+    "httpcore==1.0.9",
+    "anyio==4.12.1",
+    "pyyaml>=6.0",
+    "pydantic>=2.0",
+
+    "pytest",
+]
+
+[project.optional-dependencies]
+openai    = ["langchain-openai>=0.3.0,<0.4.0"]
+anthropic = ["langchain-anthropic>=0.3.0"]
+google    = ["langchain-google-genai>=2.0.0"]
+ollama    = ["langchain-ollama>=0.2.0"]
+all       = [
+    "codexgraph-rag[openai,anthropic,google,ollama]",
+]
+
+[project.urls]
+Homepage = "https://github.com/JoaoPedroRibeiro21/codexgraph-rag"
+Repository = "https://github.com/JoaoPedroRibeiro21/codexgraph-rag"
+Documentation = "https://github.com/JoaoPedroRibeiro21/codexgraph-rag/tree/main/docs"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+codexgraph_rag = ["profiles/*.yaml", "profiles/**/*.yaml"]

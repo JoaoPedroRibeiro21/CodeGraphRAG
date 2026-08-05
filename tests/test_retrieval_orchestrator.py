@@ -19,12 +19,18 @@ def _strategy() -> QuestionStrategy:
 
 
 def test_infer_expected_repos_detects_authorization_flow():
-    question = "Falha de autorizacao no TEF/Pix no fechamento do PDV"
-    repos = infer_expected_repos(question, [], [])
+    from retrieval_orchestrator import DomainCard
 
-    assert "VRPdv" in repos
-    assert "VRAutorizador" in repos
-    assert "VRMaster" in repos
+    cards = [
+        DomainCard(repo="pdv", aliases=("pdv", "venda", "caixa", "fechamento", "tef", "pix"), responsibilities=()),
+        DomainCard(repo="autorizador", aliases=("autorizador", "autorizacao", "autorizar"), responsibilities=()),
+        DomainCard(repo="core", aliases=("core", "erp", "parametro", "parametros", "configuracao"), responsibilities=()),
+    ]
+    question = "Falha de autorizacao no TEF/Pix no fechamento do PDV"
+    repos = infer_expected_repos(question, [], cards)
+
+    assert "pdv" in repos
+    assert "autorizador" in repos
 
 
 def test_orchestrator_escalates_to_deep_when_lacuna_is_high(monkeypatch):
@@ -43,15 +49,15 @@ def test_orchestrator_escalates_to_deep_when_lacuna_is_high(monkeypatch):
             return (
                 [
                     CodeNode(
-                        node_id="VRPdv::Venda#autorizar()",
-                        file_path="VRPdv/Venda.java",
+                        node_id="pdv::Venda#autorizar()",
+                        file_path="pdv/Venda.java",
                         type="method",
                         name="autorizar()",
                         code="void autorizar() {}",
                         depth=0,
                         is_seed=True,
                         retrieval_score=0.35,
-                        source_repo="VRPdv",
+                        source_repo="pdv",
                     )
                 ],
                 None,
@@ -59,26 +65,26 @@ def test_orchestrator_escalates_to_deep_when_lacuna_is_high(monkeypatch):
         return (
             [
                 CodeNode(
-                    node_id="VRAutorizador::Autorizador#processar()",
-                    file_path="VRAutorizador/Autorizador.java",
+                    node_id="autorizador::Autorizador#processar()",
+                    file_path="autorizador/Autorizador.java",
                     type="method",
                     name="processar()",
                     code="void processar() {}",
                     depth=0,
                     is_seed=True,
                     retrieval_score=0.8,
-                    source_repo="VRAutorizador",
+                    source_repo="autorizador",
                 ),
                 CodeNode(
-                    node_id="VRMaster::Parametro#consultar()",
-                    file_path="VRMaster/Parametro.java",
+                    node_id="core::Parametro#consultar()",
+                    file_path="core/Parametro.java",
                     type="method",
                     name="consultar()",
                     code="select * from parametro",
                     depth=1,
                     is_seed=False,
                     retrieval_score=0.78,
-                    source_repo="VRMaster",
+                    source_repo="core",
                 ),
             ],
             None,
@@ -96,7 +102,7 @@ def test_orchestrator_escalates_to_deep_when_lacuna_is_high(monkeypatch):
 
     assert result.escalated_to_deep is True
     assert result.rounds_executed >= 2
-    assert "VRPdv" in result.found_repos
-    assert "VRAutorizador" in result.found_repos
-    assert "VRMaster" in result.found_repos
+    assert "pdv" in result.found_repos
+    assert "autorizador" in result.found_repos
+    assert "core" in result.found_repos
     assert result.lacuna_score < 0.35

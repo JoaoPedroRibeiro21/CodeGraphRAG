@@ -1,7 +1,7 @@
 [project]
 # List of environment variables to be provided by each user to use the app.
 user_env = []
-name = "VRChat"
+name = "CodexGraph"
 
 # Duration (in seconds) during which the session is saved when the connection is lost
 session_timeout = 3600
@@ -62,7 +62,7 @@ favorites = false
 
 [UI]
 # Name of the assistant.
-name = "VRChat"
+name = "CodexGraph"
 
 # Custom CSS
 custom_css = "/public/custom.css"
@@ -83,7 +83,7 @@ cot = "hidden"
 confirm_new_chat = false
 
 # Description for HTML meta tags
-description = "Assistente inteligente especialista no sistema ERP VRMaster"
+description = "Assistente inteligente open source para Graph-RAG em bases de código"
 
 # Alert style
 alert_style = "classic"

@@ -2,9 +2,9 @@
 # Coloque os segredos no .env (ex: CG_LLM__API_KEY=sk-...)
 # ou preencha via wizard de configuração antes da primeira execução.
 
-product_name: "Spring PetClinic"
+product_name: "CodexGraph"
 language: "pt-BR"
-profile: "profiles/petclinic.yaml"
+profile: "profiles/generic.yaml"
 
 llm:
   provider: openai

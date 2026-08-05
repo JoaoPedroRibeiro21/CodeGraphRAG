@@ -1,0 +1,16 @@
+{
+  "default_branch": "main",
+  "sync_ttl_hours": 336,
+  "repositories": [
+    {
+      "name": "meu-sistema-core",
+      "url": "https://github.com/minha-org/meu-sistema-core.git",
+      "priority": "primary"
+    },
+    {
+      "name": "meu-sistema-modulo-a",
+      "url": "https://github.com/minha-org/meu-sistema-modulo-a.git",
+      "priority": "secondary"
+    }
+  ]
+}

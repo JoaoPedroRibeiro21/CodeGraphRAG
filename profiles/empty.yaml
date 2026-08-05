@@ -1,0 +1,96 @@
+# Profile mínimo para rodar sem domínio específico.
+# Útil para testes de smoke com qualquer repositório de exemplo.
+
+product_name: "CodexGraph"
+language: "en"
+
+categories:
+  - name: geral
+    keywords: []
+    multiplier: 1.0
+    max_nodes: 18
+    min_score: 0.35
+    max_expansions: 8
+    max_depth: 2
+    artifact_defaults: []
+
+domain_cards: []
+
+artifact_hints:
+  sql:        [table, column, query, select, insert, update, delete]
+  tables:     [table, tables, from, join, into]
+  columns:    [column, columns, field]
+  messages:   [error, fail, message, exception, alert]
+  parameters: [parameter, config, flag, property]
+  permissions: [permission, access, authorization]
+  exceptions: [exception, throw, raises]
+  flow:       [flow, integration, process, step, sequence]
+
+stopwords:
+  - the
+  - a
+  - an
+  - is
+  - are
+  - how
+  - what
+  - where
+  - when
+  - why
+  - which
+  - this
+  - that
+  - these
+  - those
+
+deep_analysis_keywords:
+  - technical
+  - code
+  - class
+  - method
+  - implementation
+  - stacktrace
+  - sql
+  - table
+  - column
+  - query
+  - repository
+
+explicit_deep_analysis_keywords:
+  - technical
+  - code
+  - class
+  - method
+  - implementation
+  - stacktrace
+  - exception
+  - repository
+  - file
+  - line
+  - debug
+  - source
+
+factory_patterns: []
+
+prompts:
+  system: |
+    You are an expert support assistant for {product_name}. Answer based only on the retrieved documents and code.
+  light: |
+    You are the {product_name} assistant. Be concise and clear.
+  classifier: |
+    Classify the user's question for {product_name} into one of: {categories}. Return JSON only.
+  batch_analysis: |
+    You are a code analysis agent. Extract confirmed facts, rules, flow, SQL, and uncertainties for: {question}
+  consolidation: |
+    You are a technical consolidation agent. Merge analyses, remove duplicates, and preserve uncertainties.
+  verification: |
+    You are an evidence verifier. For each claim, indicate whether it is supported by the evidence.
+
+i18n:
+  tables: "Confirmed tables"
+  columns: "Explicitly confirmed columns"
+  messages: "Messages/alerts"
+  parameters: "Parameters/configuration"
+  permissions: "Permissions/authorization"
+  exceptions: "Exceptions"
+  no_evidence: "There is not enough validated evidence to answer safely."

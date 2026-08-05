@@ -1,0 +1,235 @@
+# Profile genérico / agnóstico de domínio.
+# Pode ser usado como ponto de partida para qualquer codebase.
+
+product_name: "CodexGraph"
+language: "pt-BR"
+
+categories:
+  - name: funcional
+    keywords:
+      - como funciona
+      - regra
+      - processo
+      - fluxo
+      - comportamento
+      - cadastrar
+      - consultar
+      - gerar
+      - emitir
+      - cancelar
+      - excluir
+      - alterar
+      - gravar
+    multiplier: 1.0
+    max_nodes: 24
+    min_score: 0.35
+    max_expansions: 12
+    max_depth: 2
+    artifact_defaults: []
+
+  - name: erro
+    keywords:
+      - erro
+      - falha
+      - mensagem
+      - exception
+      - excecao
+      - atencao
+      - alerta
+      - validacao
+      - validar
+    multiplier: 1.0
+    max_nodes: 24
+    min_score: 0.35
+    max_expansions: 12
+    max_depth: 2
+    artifact_defaults: [messages, exceptions]
+
+  - name: sql_dados
+    keywords:
+      - tabela
+      - coluna
+      - sql
+      - query
+      - banco
+      - dados
+      - insert
+      - update
+      - delete
+      - select
+      - join
+      - dao
+      - repository
+    multiplier: 1.1
+    max_nodes: 28
+    min_score: 0.30
+    max_expansions: 14
+    max_depth: 2
+    artifact_defaults: [tables, columns, sql]
+
+  - name: parametro
+    keywords:
+      - parametro
+      - configuracao
+      - config
+      - flag
+      - propriedade
+      - opcao
+      - habilitar
+      - desabilitar
+    multiplier: 1.0
+    max_nodes: 20
+    min_score: 0.35
+    max_expansions: 10
+    max_depth: 2
+    artifact_defaults: [parameters]
+
+  - name: tela
+    keywords:
+      - tela
+      - botao
+      - campo
+      - menu
+      - aba
+      - grid
+      - janela
+      - interface
+      - ui
+      - form
+    multiplier: 1.0
+    max_nodes: 20
+    min_score: 0.35
+    max_expansions: 10
+    max_depth: 2
+    artifact_defaults: []
+
+  - name: tecnico
+    keywords:
+      - tecnico
+      - codigo
+      - classe
+      - metodo
+      - implementacao
+      - stacktrace
+      - exception
+      - arquivo
+      - linha
+      - debug
+      - fonte
+      - service
+      - controller
+      - repository
+      - adapter
+      - factory
+    multiplier: 1.05
+    max_nodes: 30
+    min_score: 0.30
+    max_expansions: 16
+    max_depth: 3
+    artifact_defaults: [flow]
+
+  - name: geral
+    keywords: []
+    multiplier: 1.0
+    max_nodes: 18
+    min_score: 0.35
+    max_expansions: 8
+    max_depth: 2
+    artifact_defaults: []
+
+domain_cards: []
+
+artifact_hints:
+  sql:        [tabela, coluna, join, dao, query, select, insert, update, delete]
+  tables:     [tabela, tabelas, table, from, join, into]
+  columns:    [coluna, colunas, column, campo, campos, field]
+  messages:   [erro, falha, mensagem, exception, excecao, alerta]
+  parameters: [parametro, parametros, configuracao, config, flag, propriedade]
+  permissions: [permissao, acesso, autorizacao]
+  exceptions: [exception, excecao, throw, throws, raise]
+  flow:       [fluxo, integracao, processo, etapa, sequencia]
+
+stopwords:
+  - como
+  - quando
+  - quais
+  - qual
+  - onde
+  - porque
+  - sobre
+  - para
+  - com
+  - sem
+  - das
+  - dos
+  - que
+  - uma
+  - nos
+  - sao
+  - esta
+  - esse
+  - essa
+  - isso
+  - tipo
+  - sistema
+
+# Termos que indicam que o usuário quer análise profunda de código.
+deep_analysis_keywords:
+  - tecnico
+  - codigo
+  - classe
+  - metodo
+  - implementacao
+  - stacktrace
+  - sql
+  - tabela
+  - coluna
+  - query
+  - dao
+  - repository
+
+explicit_deep_analysis_keywords:
+  - tecnico
+  - tecnica
+  - codigo
+  - classe
+  - metodo
+  - implementacao
+  - stacktrace
+  - exception
+  - repositorio
+  - arquivo
+  - linha
+  - debug
+  - fonte
+
+# Padrões de factory/injeção específicos do domínio.
+# Formato: expressão regular onde {class} e {method} são placeholders.
+factory_patterns: []
+
+prompts:
+  system: |
+    Você é um assistente especialista sênior de suporte. Responda sobre o sistema {product_name}.
+    Use linguagem clara. Sempre cite a fonte (documento ou trecho de código) quando possível.
+    Não invente detalhes que não estejam nos documentos ou no código recuperado.
+  light: |
+    Você é o assistente do {product_name}. Responda de forma objetiva e clara.
+  classifier: |
+    Classifique a pergunta de um usuário do {product_name} para escolher a estratégia de recuperação RAG.
+    Categorias disponíveis: {categories}.
+    Responda apenas com JSON: {{"category": "...", "confidence": 0.0-1.0, "needs_deep_analysis": true/false, "reason": "..."}}
+  batch_analysis: |
+    Você é um agente coder especialista. Analise o código abaixo e extraia fatos confirmados, regras, fluxo, SQL, evidências e incertezas sobre a pergunta: {question}
+  consolidation: |
+    Você é um agente consolidador técnico. Una as análises, remova duplicidades e preserve incertezas.
+  verification: |
+    Você é um agente verificador de evidências. Para cada afirmação, indique se está sustentada pelas evidências. Responda VEREDICTO: aprovado/reprovado.
+
+i18n:
+  tables: "Tabelas confirmadas"
+  columns: "Colunas explicitamente confirmadas"
+  messages: "Mensagens/alertas"
+  parameters: "Parâmetros/configurações"
+  permissions: "Permissões/autorizações"
+  exceptions: "Exceções"
+  no_evidence: "Não há evidência documental validada suficiente para responder com segurança."

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# start.sh — inicializa o CodexGraph-RAG com Spring PetClinic na VPS
+# start.sh — inicializa o CodexGraph-RAG via Docker Compose
 #
 # Uso:
 #   chmod +x start.sh
@@ -13,8 +13,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-echo "CodexGraph-RAG — Spring PetClinic Portfolio"
-echo "============================================"
+echo "CodexGraph-RAG"
+echo "=============="
 
 # Verifica dependências mínimas
 if ! command -v docker &> /dev/null; then
@@ -85,25 +85,10 @@ if ! git rev-parse --is-inside-work-tree &> /dev/null; then
     exit 1
 fi
 
-# Verifica se a working tree está limpa antes de manipular a branch
+# Verifica se a working tree está limpa antes de subir os serviços
 if [ -n "$(git status --porcelain)" ]; then
-    echo "ERRO: a working tree contém alterações não commitadas."
-    echo "Commit, stash ou descarte as mudanças antes de executar este script."
-    exit 1
-fi
-
-echo "Atualizando branch petclinic-poc..."
-git fetch origin
-if ! git show-ref --verify --quiet refs/heads/petclinic-poc; then
-    git checkout -b petclinic-poc origin/petclinic-poc
-else
-    git checkout petclinic-poc
-fi
-if ! git pull --ff-only origin petclinic-poc; then
-    echo ""
-    echo "ERRO: não foi possível atualizar a branch petclinic-poc com fast-forward."
-    echo "A branch local está à frente ou divergiu da origem. Resolva manualmente com git status e git log origin/petclinic-poc..petclinic-poc antes de reexecutar."
-    exit 1
+    echo "AVISO: a working tree contém alterações não commitadas."
+    echo "Commit, stash ou descarte as mudanças para garantir um deploy reproduzível."
 fi
 
 echo "Criando diretórios de dados persistentes..."

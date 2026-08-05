@@ -3,6 +3,8 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
+from codexgraph_rag import settings
+from codexgraph_rag.profile_runtime import stopwords as _profile_stopwords
 from question_classifier import normalize_question_text
 
 PDF_VALIDATION_MIN_SCORE = float(os.getenv("PDF_VALIDATION_MIN_SCORE", "0.52"))
@@ -10,42 +12,13 @@ PDF_VALIDATION_MIN_LEXICAL = float(os.getenv("PDF_VALIDATION_MIN_LEXICAL", "0.18
 PDF_VALIDATION_HIGH_VECTOR_OVERRIDE = float(os.getenv("PDF_VALIDATION_HIGH_VECTOR_OVERRIDE", "0.78"))
 PDF_VALIDATION_MAX_EXCERPT_CHARS = int(os.getenv("PDF_VALIDATION_MAX_EXCERPT_CHARS", "700"))
 
-STOPWORDS_PT = {
-    "a",
-    "ao",
-    "aos",
-    "as",
-    "com",
-    "como",
-    "da",
-    "das",
-    "de",
-    "do",
-    "dos",
-    "e",
-    "em",
-    "na",
-    "nas",
-    "no",
-    "nos",
-    "o",
-    "os",
-    "ou",
-    "para",
-    "por",
-    "que",
-    "se",
-    "sem",
-    "ser",
-    "sua",
-    "suas",
-    "seu",
-    "seus",
-    "um",
-    "uma",
-    "uns",
-    "umas",
+_DEFAULT_STOPWORDS_PT = {
+    "a", "ao", "aos", "as", "com", "como", "da", "das", "de", "do", "dos", "e",
+    "em", "na", "nas", "no", "nos", "o", "os", "ou", "para", "por", "que", "se",
+    "sem", "ser", "sua", "suas", "seu", "seus", "um", "uma", "uns", "umas",
 }
+
+STOPWORDS_PT = _profile_stopwords(settings.profile) or _DEFAULT_STOPWORDS_PT
 
 
 @dataclass

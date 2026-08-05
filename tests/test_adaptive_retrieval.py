@@ -17,7 +17,7 @@ def test_build_retrieval_intent_uses_history_for_followup_question():
     intent = build_retrieval_intent(
         question="E quando falha?",
         chat_history=[("user", "Como funciona autorizacao no PDV?")],
-        expected_repos=["VRPdv", "VRAutorizador"],
+        expected_repos=["pdv", "autorizador"],
         classification=classification,
         session_state=state,
     )
@@ -29,9 +29,9 @@ def test_build_retrieval_intent_uses_history_for_followup_question():
 
 def test_run_adaptive_code_retrieval_expands_graph_neighbors():
     graph = nx.DiGraph()
-    graph.add_node("A", type="method", name="A", code="void a(){ b(); }", file_path="A.java", source_repo="VRPdv")
-    graph.add_node("B", type="method", name="B", code="void b(){ c(); }", file_path="B.java", source_repo="VRAutorizador")
-    graph.add_node("C", type="method", name="C", code="select * from venda", file_path="C.java", source_repo="VRMaster")
+    graph.add_node("A", type="method", name="A", code="void a(){ b(); }", file_path="A.java", source_repo="pdv")
+    graph.add_node("B", type="method", name="B", code="void b(){ c(); }", file_path="B.java", source_repo="autorizador")
+    graph.add_node("C", type="method", name="C", code="select * from venda", file_path="C.java", source_repo="core")
     graph.add_edge("A", "B", type="CALLS", confidence="high", reason="typed_variable_or_field")
     graph.add_edge("B", "C", type="CALLS", confidence="medium", reason="contextual")
 
@@ -46,7 +46,7 @@ def test_run_adaptive_code_retrieval_expands_graph_neighbors():
                 depth=0,
                 is_seed=True,
                 retrieval_score=0.9,
-                source_repo="VRPdv",
+                source_repo="pdv",
             )
         ]
         return nodes, None
@@ -56,7 +56,7 @@ def test_run_adaptive_code_retrieval_expands_graph_neighbors():
             question="Fluxo de autorizacao no PDV",
             chat_history=[("user", "Fluxo de autorizacao")],
             classification=QuestionClassification("tecnico", 0.9, "teste"),
-            expected_repos=["VRPdv", "VRAutorizador"],
+            expected_repos=["pdv", "autorizador"],
             retrieve_code_fn=fake_retrieve_code_fn,
             session_state=None,
             code_graph=graph,
@@ -75,15 +75,15 @@ def test_run_adaptive_code_retrieval_updates_session_state():
     async def fake_retrieve_code_fn(query, classification, preferred_repos, required_repos, query_hint):
         nodes = [
             CodeNode(
-                node_id="VRPdv::Venda#fechar()",
-                file_path="VRPdv/Venda.java",
+                node_id="pdv::Venda#fechar()",
+                file_path="pdv/Venda.java",
                 type="method",
                 name="fechar()",
                 code="void fechar(){}",
                 depth=0,
                 is_seed=True,
                 retrieval_score=0.7,
-                source_repo="VRPdv",
+                source_repo="pdv",
             )
         ]
         return nodes, None
@@ -94,7 +94,7 @@ def test_run_adaptive_code_retrieval_updates_session_state():
             question="Fechamento do PDV",
             chat_history=[("user", "Preciso do fluxo")],
             classification=QuestionClassification("funcional", 0.9, "teste"),
-            expected_repos=["VRPdv"],
+            expected_repos=["pdv"],
             retrieve_code_fn=fake_retrieve_code_fn,
             session_state=state,
             code_graph=None,
@@ -105,5 +105,5 @@ def test_run_adaptive_code_retrieval_updates_session_state():
 
     snapshot = result.session_state.to_dict()
     assert snapshot["query_lineage"]
-    assert "VRPdv::Venda#fechar()" in snapshot["approved_node_ids"]
-    assert "VRPdv" in snapshot["found_repos"]
+    assert "pdv::Venda#fechar()" in snapshot["approved_node_ids"]
+    assert "pdv" in snapshot["found_repos"]

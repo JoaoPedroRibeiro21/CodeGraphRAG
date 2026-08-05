@@ -1,29 +1,64 @@
 # Ambiente virtual
 .venv/
-venv
+venv/
 
-arquivos/chat_retrieval_db/
-
-chroma_graph_db
-
-tree-sitter-java/
-
+# Chaves e configurações locais
 .env
+.env.local
+*.secret
+*.key
 
+# Dados gerados / bases vetoriais
+arquivos/
+chroma_graph_db/
 code_graph.gpickle
+local_chat_retrieval_db/
+local_chroma_graph_db/
 
+# Documentos de exemplo / base de conhecimento (não versionar documentos reais)
+files/*.pdf
+files/*.PDF
+files/*.jpg
+files/*.png
+files/*.jpeg
+files/*.gif
+files/documents/*
+!files/documents/.gitkeep
+
+# Repositórios sincronizados
 repos_sources/
 
+# Gramáticas tree-sitter baixadas em build
+tree-sitter-java/
+tree-sitter-python/
+tree-sitter-typescript/
+tree-sitter-go/
+
+# Modelos e artefados pesados
 *.pt
 *.ckpt
 *.csv
 *.zip
 *.tar
 *.h5
+
+# Python
 __pycache__/
 *.pyc
 *.pyo
+*.egg-info/
+dist/
+build/
 
+# Relatórios de avaliação
 eval/reports/
-local_chat_retrieval_db/
-local_chroma_graph_db/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Planos locais do Claude
+.claude/plans/

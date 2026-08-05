@@ -3,6 +3,8 @@ import os
 from dataclasses import dataclass, field
 
 from adaptive_retrieval import RetrievalSessionState, assess_gap_report, run_adaptive_code_retrieval
+from codexgraph_rag import settings
+from codexgraph_rag.profile_runtime import domain_cards as _profile_domain_cards
 from graph_retrieval import RetrievalSummary, confidence_label
 from question_classifier import QuestionClassification, QuestionStrategy, normalize_question_text
 
@@ -55,33 +57,9 @@ class OrchestrationResult:
 
 
 def build_domain_cards() -> list[DomainCard]:
-    return [
-        DomainCard(
-            repo="VRMaster",
-            aliases=("vrmaster", "erp", "parametro", "parametros", "configuracao"),
-            responsibilities=("regras centrais do ERP", "parametros", "persistencia"),
-        ),
-        DomainCard(
-            repo="VRPdv",
-            aliases=("vrpdv", "pdv", "venda", "caixa", "fechamento", "tef", "pix"),
-            responsibilities=("fluxo de venda", "pagamentos", "fechamento de venda"),
-        ),
-        DomainCard(
-            repo="VRAutorizador",
-            aliases=("vrautorizador", "autorizador", "autorizacao", "autorizar"),
-            responsibilities=("autorizacao de operacoes", "retorno de autorizacao"),
-        ),
-        DomainCard(
-            repo="VRGerenciadorNFCe",
-            aliases=("vrgerenciadornfce", "nfce", "nfc", "nota fiscal", "emissao"),
-            responsibilities=("emissao de NFC-e", "integracao fiscal"),
-        ),
-        DomainCard(
-            repo="VRConcentrador",
-            aliases=("vrconcentrador", "concentrador", "evento", "fila", "publica", "recebe"),
-            responsibilities=("integracao por eventos", "concentracao de mensagens"),
-        ),
-    ]
+    """Build domain cards from the active domain profile, or return an empty list."""
+    cards = _profile_domain_cards(settings.profile)
+    return [DomainCard(repo=repo, aliases=aliases, responsibilities=responsibilities) for repo, aliases, responsibilities in cards]
 
 
 def _extract_history_text(chat_history: list[tuple[str, str]], window: int) -> str:
@@ -99,16 +77,7 @@ def infer_expected_repos(question: str, chat_history: list[tuple[str, str]], car
         if any(alias in normalized for alias in card.aliases):
             expected.add(card.repo)
 
-    terms = set(normalized.split())
-    if terms & {"autorizador", "autorizacao", "tef", "pix"}:
-        expected.update({"VRPdv", "VRAutorizador", "VRMaster"})
-    if terms & {"nfce", "nfc", "emissao"}:
-        expected.update({"VRPdv", "VRGerenciadorNFCe", "VRMaster"})
-    if terms & {"concentrador", "evento", "publica", "recebe"}:
-        expected.add("VRConcentrador")
-    if terms & {"parametro", "parametros", "erp", "configuracao"}:
-        expected.add("VRMaster")
-
+    # Domain-specific co-occurrence rules can be added later via profile `extra` config.
     return sorted(expected)
 
 

@@ -4,6 +4,13 @@ import re
 from dataclasses import dataclass, field
 
 from code_analysis_pipeline import CodeNode
+from codexgraph_rag import settings
+from codexgraph_rag.profile_runtime import (
+    artifact_hints as _profile_artifact_hints,
+    category_artifact_defaults as _profile_category_artifact_defaults,
+    category_tuning as _profile_category_tuning,
+    stopwords as _profile_stopwords,
+)
 from graph_retrieval import calculate_retrieval_score, iter_graph_neighbors
 from question_classifier import QuestionClassification, normalize_question_text
 
@@ -15,92 +22,43 @@ ADAPTIVE_MAX_GRAPH_EXPANSIONS = int(os.getenv("ADAPTIVE_MAX_GRAPH_EXPANSIONS", "
 ADAPTIVE_MIN_GRAPH_SCORE = float(os.getenv("ADAPTIVE_MIN_GRAPH_SCORE", "0.25"))
 ADAPTIVE_MAX_FINAL_NODES = int(os.getenv("ADAPTIVE_MAX_FINAL_NODES", "24"))
 
-_CATEGORY_MIN_GRAPH_SCORE = {
-    "funcional": 0.34,
-    "erro": 0.30,
-    "sql_dados": 0.28,
-    "parametro": 0.34,
-    "tela": 0.34,
-    "tecnico": 0.30,
-    "geral": 0.40,
-}
 
-_CATEGORY_MAX_FINAL_NODES = {
-    "funcional": 16,
-    "erro": 20,
-    "sql_dados": 20,
-    "parametro": 16,
-    "tela": 16,
-    "tecnico": 20,
-    "geral": 10,
-}
+def _category_min_graph_score(category: str) -> float:
+    tuning = _profile_category_tuning(settings.profile)
+    return float(tuning.get(category, {}).get("min_score", 0.35))
 
-_CATEGORY_MAX_EXPANSIONS = {
-    "funcional": 18,
-    "erro": 24,
-    "sql_dados": 24,
-    "parametro": 18,
-    "tela": 18,
-    "tecnico": 24,
-    "geral": 12,
-}
 
-_CATEGORY_MAX_DEPTH = {
-    "funcional": 1,
-    "erro": 2,
-    "sql_dados": 2,
-    "parametro": 1,
-    "tela": 1,
-    "tecnico": 2,
-    "geral": 1,
-}
+def _category_max_final_nodes(category: str) -> int:
+    tuning = _profile_category_tuning(settings.profile)
+    return int(tuning.get(category, {}).get("max_nodes", 24))
+
+
+def _category_max_expansions(category: str) -> int:
+    tuning = _profile_category_tuning(settings.profile)
+    return int(tuning.get(category, {}).get("max_expansions", 12))
+
+
+def _category_max_depth(category: str) -> int:
+    tuning = _profile_category_tuning(settings.profile)
+    return int(tuning.get(category, {}).get("max_depth", 2))
+
 
 _ENTITY_RE = re.compile(r"[A-Za-z0-9_]{3,}")
 
-_ENTITY_STOPWORDS = {
-    "como",
-    "quando",
-    "qual",
-    "quais",
-    "onde",
-    "porque",
-    "sobre",
-    "para",
-    "com",
-    "sem",
-    "das",
-    "dos",
-    "que",
-    "uma",
-    "nos",
-    "sao",
-    "esta",
-    "esse",
-    "essa",
-    "isso",
-    "tipo",
-    "fluxo",
-    "sistema",
-    "vrmaster",
-}
+_ENTITY_STOPWORDS = _profile_stopwords(settings.profile)
 
-_ARTIFACT_HINTS = {
-    "sql": {"sql", "select", "insert", "update", "delete", "tabela", "coluna", "join", "dao"},
-    "tables": {"tabela", "tabelas", "coluna", "colunas", "campo", "campos"},
-    "messages": {"erro", "falha", "mensagem", "excecao", "exception", "alerta"},
-    "parameters": {"parametro", "parametros", "configuracao", "config", "flag", "propriedade"},
-    "permissions": {"permissao", "acesso", "autorizacao", "autorizador"},
-    "flow": {"fluxo", "integracao", "processo", "etapa", "sequencia"},
-}
+_ARTIFACT_HINTS = _profile_artifact_hints(settings.profile)
 
-_CATEGORY_ARTIFACT_DEFAULTS = {
-    "sql_dados": ["sql", "tables"],
-    "erro": ["messages", "flow"],
-    "parametro": ["parameters", "flow"],
-    "tecnico": ["flow"],
-    "funcional": ["flow"],
-    "tela": ["flow"],
-}
+_CATEGORY_ARTIFACT_DEFAULTS = _profile_category_artifact_defaults(settings.profile)
+if not _CATEGORY_ARTIFACT_DEFAULTS:
+    _CATEGORY_ARTIFACT_DEFAULTS = {
+        "sql_dados": ["sql", "tables"],
+        "erro": ["messages", "flow"],
+        "parametro": ["parameters", "flow"],
+        "tecnico": ["flow"],
+        "funcional": ["flow"],
+        "tela": ["flow"],
+    }
 
 
 @dataclass
@@ -593,16 +551,16 @@ async def run_adaptive_code_retrieval(
 
     max_variants = max(1, max(max_rounds, ADAPTIVE_MAX_QUERY_VARIANTS))
     category = classification.category
-    base_min_score = _CATEGORY_MIN_GRAPH_SCORE.get(category, ADAPTIVE_MIN_GRAPH_SCORE)
+    base_min_score = _category_min_graph_score(category)
     if len(set(expected_repos)) >= 3:
         base_min_score = max(0.22, base_min_score - 0.02)
     effective_min_score = float(os.getenv("ADAPTIVE_MIN_GRAPH_SCORE", str(base_min_score)))
-    effective_max_nodes = int(os.getenv("ADAPTIVE_MAX_FINAL_NODES", str(_CATEGORY_MAX_FINAL_NODES.get(category, ADAPTIVE_MAX_FINAL_NODES))))
-    base_expansions = _CATEGORY_MAX_EXPANSIONS.get(category, ADAPTIVE_MAX_GRAPH_EXPANSIONS)
+    effective_max_nodes = int(os.getenv("ADAPTIVE_MAX_FINAL_NODES", str(_category_max_final_nodes(category))))
+    base_expansions = _category_max_expansions(category)
     if max_rounds >= 3:
         base_expansions = int(base_expansions * 1.25)
     effective_max_expansions = int(os.getenv("ADAPTIVE_MAX_GRAPH_EXPANSIONS", str(base_expansions)))
-    base_depth = _CATEGORY_MAX_DEPTH.get(category, ADAPTIVE_MAX_GRAPH_DEPTH)
+    base_depth = _category_max_depth(category)
     if max_rounds >= 3:
         base_depth = max(base_depth, 2)
     effective_depth = int(os.getenv("ADAPTIVE_MAX_GRAPH_DEPTH", str(base_depth)))

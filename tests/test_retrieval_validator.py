@@ -11,7 +11,7 @@ def test_validate_pdf_evidence_approves_relevant_and_rejects_unrelated():
     question = "como configurar contingencia SAT NFCe no PDV"
     relevant_doc = FakeDoc(
         "Para configurar contingencia SAT e NFCe no PDV, acesse parametros fiscais e habilite contingencia.",
-        {"arquivo_fonte": "contingencia_sat_nfce_UniversidadeVR.txt", "page": 0},
+        {"arquivo_fonte": "contingencia_sat_nfce.txt", "page": 0},
     )
     unrelated_doc = FakeDoc(
         "Esse material fala sobre carta de cobranca e personalizacao de layout financeiro.",
@@ -25,7 +25,7 @@ def test_validate_pdf_evidence_approves_relevant_and_rejects_unrelated():
     )
 
     assert len(result.approved) == 1
-    assert result.approved[0].source_label == "contingencia_sat_nfce_UniversidadeVR.txt"
+    assert result.approved[0].source_label == "contingencia_sat_nfce.txt"
     assert result.rejected_count == 1
 
 
